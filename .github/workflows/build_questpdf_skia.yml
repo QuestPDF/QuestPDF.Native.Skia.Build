@@ -159,7 +159,7 @@ jobs:
       - name: Build Skia
         shell: bash
         run: |
-          git clone https://github.com/QuestPDF/QuestPDF.Native.Skia --branch chrome/m148 --single-branch --depth 1
+          git clone https://github.com/QuestPDF/QuestPDF.Native.Skia --branch chrome/m148 --single-branch --depth 1 skia
           cd skia
           
           bin/fetch-ninja
