@@ -159,9 +159,8 @@ jobs:
       - name: Build Skia
         shell: bash
         run: |
-          git clone https://github.com/google/skia.git --branch chrome/m146 --single-branch --depth 1
+          git clone https://github.com/QuestPDF/QuestPDF.Native.Skia --branch chrome/m148 --single-branch --depth 1
           cd skia
-          git apply --ignore-whitespace ../patches/*.patch
           
           bin/fetch-ninja
           python3 tools/git-sync-deps
