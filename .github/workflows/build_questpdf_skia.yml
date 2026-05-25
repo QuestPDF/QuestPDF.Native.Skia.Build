@@ -296,6 +296,7 @@ jobs:
           
       - name: Upload test results
         uses: actions/upload-artifact@v4
+        if: ${{ always() }}
         with:
           name: questpdf-test-results-${{ matrix.runtime.name }}
           path: testOutput
