@@ -285,11 +285,13 @@ jobs:
           mkdir -p "$TEST_EXECUTION_PATH"
           cp -R output/* "$TEST_EXECUTION_PATH"
           
-          dotnet test managed --framework net8.0 --runtime ${{ matrix.runtime.name }}
+          dotnet test managed --framework net8.0 --runtime ${{ matrix.runtime.name }} || TEST_RESULT=$?
           mkdir -p testOutput/${{ matrix.runtime.name }} 
           
           ls -lR $TEST_EXECUTION_PATH
-          cp -r $TEST_EXECUTION_PATH/Output/* testOutput/${{ matrix.runtime.name }} 
+          cp -r $TEST_EXECUTION_PATH/Output/* testOutput/${{ matrix.runtime.name }}
+
+          exit ${TEST_RESULT:-0}
 
           
       - name: Upload test results
@@ -301,6 +303,7 @@ jobs:
   merge:
     runs-on: ubuntu-latest
     needs: main
+    if: ${{ always() }}
     steps:
       - name: Merge native libraries
         uses: actions/upload-artifact/merge@v4
