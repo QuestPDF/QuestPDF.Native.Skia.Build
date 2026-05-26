@@ -17,23 +17,23 @@ jobs:
       max-parallel: 3
       matrix:
         runtime: 
-        # - name: win-x64
-        #   runs-on: windows-latest-xlarge
-        # - name: win-x86
-        #   runs-on: windows-latest-xlarge
+        - name: win-x64
+          runs-on: windows-latest-xlarge
+        - name: win-x86
+          runs-on: windows-latest-xlarge
         - name: linux-x64
           runs-on: ubuntu-latest-xlarge
           container: quay.io/pypa/manylinux_2_28_x86_64
         - name: linux-arm64
           runs-on: ubuntu-latest-xlarge-arm64
           container: quay.io/pypa/manylinux_2_28_aarch64
-        # - name: linux-musl-x64
-        #   runs-on: ubuntu-latest-xlarge
-        #   container: alpine:3.17
-        # - name: osx-x64
-        #   runs-on: macos-latest-large
-        # - name: osx-arm64
-        #   runs-on: macos-latest-xlarge
+        - name: linux-musl-x64
+          runs-on: ubuntu-latest-xlarge
+          container: alpine:3.17
+        - name: osx-x64
+          runs-on: macos-latest-large
+        - name: osx-arm64
+          runs-on: macos-latest-xlarge
 
     env:
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true    
@@ -92,7 +92,7 @@ jobs:
       - name: Build Skia
         shell: bash
         run: |
-          git clone https://github.com/QuestPDF/QuestPDF.Native.Skia --branch chrome/m148 --single-branch --depth 1 skia
+          git clone https://github.com/QuestPDF/QuestPDF.Native.Skia --branch chrome/m149 --single-branch --depth 1 skia
           cd skia
           
           bin/fetch-ninja
