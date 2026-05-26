@@ -21,6 +21,8 @@ jobs:
           runs-on: windows-latest-xlarge
         - name: win-x86
           runs-on: windows-latest-xlarge
+        - name: win-arm64
+          runs-on: windows-latest-xlarge-arm64
         - name: linux-x64
           runs-on: ubuntu-latest-xlarge
           container: quay.io/pypa/manylinux_2_28_x86_64
@@ -73,11 +75,11 @@ jobs:
           python3 --version
 
           
-      - name: Install Python 3.x
+      - name: Install Python 3.11
         if: runner.os != 'Linux'
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
 
       - name: Install Skia Build System
@@ -176,6 +178,7 @@ jobs:
             -DCMAKE_CXX_COMPILER=clang++ 
             -DCMAKE_C_COMPILER=clang 
             -DCMAKE_BUILD_TYPE=Release"
+            
           if [ "${{ matrix.runtime.name }}" = "win-x86" ]; then
             CMAKE_ARGS+=" -A Win32"
           fi
