@@ -48,7 +48,7 @@ jobs:
         shell: bash
         run: |
           dnf update -y
-          dnf install -y wget curl git cmake libicu tar xz gzip findutils which patch
+          dnf install -y wget curl git cmake libicu tar xz gzip findutils which patch python3
           dnf install -y clang lldb lld libstdc++-devel make gcc gcc-c++ cmake
 
             
@@ -58,17 +58,18 @@ jobs:
         run: |
           apk update
           apk upgrade
-          apk add bash wget curl git build-base cmake clang llvm15 icu-libs linux-headers bsd-compat-headers gn fontconfig font-noto tar xz
+          apk add bash wget curl git python3 build-base cmake clang llvm15 icu-libs linux-headers bsd-compat-headers gn fontconfig font-noto tar xz
 
           
       - name: Install 3.x
+        if: runner.os != 'Linux'
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
 
 
       - name: Install Skia Build System
-        if: matrix.runtime.name != 'linux-musl-x64'
+        # if: matrix.runtime.name != 'linux-musl-x64'
         shell: bash
         run: |
           git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --single-branch --depth 1
