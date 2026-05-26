@@ -63,16 +63,14 @@ jobs:
           apk add bash wget curl git python3 build-base cmake clang llvm15 icu-libs linux-headers bsd-compat-headers gn fontconfig font-noto tar xz
 
 
-      - name: Setup Python 3.10
+      - name: Setup Python 3.11
         if: matrix.runtime.name == 'linux-x64' || matrix.runtime.name == 'linux-arm64'
         shell: bash
         run: |
-          # manylinux_2_28 natively bundles pre-compiled Python 3.10
+          # manylinux_2_28 natively bundles pre-compiled Python 3.11
           # expose it so depot_tools grabs it instead of 3.6
-          echo "/opt/python/cp310-cp310/bin" >> $GITHUB_PATH
-          ln -sf /opt/python/cp310-cp310/bin/python3 /usr/bin/python3
-          
-          python3 --version
+          echo "/opt/python/cp311-cp311/bin" >> $GITHUB_PATH
+          ln -sf /opt/python/cp311-cp311/bin/python3 /usr/bin/python3
 
           
       - name: Install Python 3.11
