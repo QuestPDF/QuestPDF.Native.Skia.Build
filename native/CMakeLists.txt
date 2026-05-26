@@ -54,7 +54,18 @@ endif()
 # Linux configuration
 if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     file(GLOB SKIA_LIBRARY "${SKIA_DIR}/out/release/*.a")
-    target_link_libraries(QuestPdfSkia PRIVATE ${SKIA_LIBRARY})
+    list(SORT SKIA_LIBRARY)
+
+    target_link_libraries(QuestPdfSkia PRIVATE
+        -Wl,--start-group
+        ${SKIA_LIBRARY}
+        -Wl,--end-group
+    )
+
+    target_link_options(QuestPdfSkia PRIVATE
+        -Wl,-z,defs
+        -Wl,--no-undefined
+    )
 
     # reduce output package size
     add_custom_command(TARGET QuestPdfSkia POST_BUILD COMMAND ${CMAKE_STRIP} -x $<TARGET_FILE:QuestPdfSkia>)
