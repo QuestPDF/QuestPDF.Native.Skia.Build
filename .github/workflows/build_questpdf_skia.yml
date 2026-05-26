@@ -158,6 +158,8 @@ jobs:
           
           if [ "${{ matrix.runtime.name }}" = "win-x86" ]; then
             COMMON_ARGS+=' target_cpu="x86"'
+          elif [ "${{ matrix.runtime.name }}" = "win-arm64" ]; then
+            COMMON_ARGS+=' target_cpu="arm64"'
           fi
           
           if [ "${{ matrix.runtime.name }}" = "linux-musl-x64" ]; then
@@ -182,6 +184,8 @@ jobs:
             
           if [ "${{ matrix.runtime.name }}" = "win-x86" ]; then
             CMAKE_ARGS+=" -A Win32"
+          elif [ "${{ matrix.runtime.name }}" = "win-arm64" ]; then
+            CMAKE_ARGS+=" -A ARM64"
           fi
           
           cmake $CMAKE_ARGS
