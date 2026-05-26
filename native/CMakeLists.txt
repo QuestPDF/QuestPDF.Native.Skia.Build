@@ -56,10 +56,14 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     file(GLOB SKIA_LIBRARY "${SKIA_DIR}/out/release/*.a")
     list(SORT SKIA_LIBRARY)
 
+    set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+    find_package(Threads REQUIRED)
+    
     target_link_libraries(QuestPdfSkia PRIVATE
         -Wl,--start-group
         ${SKIA_LIBRARY}
         -Wl,--end-group
+        Threads::Threads
     )
 
     target_link_options(QuestPdfSkia PRIVATE
