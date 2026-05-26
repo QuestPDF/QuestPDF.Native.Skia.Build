@@ -23,10 +23,10 @@ jobs:
           runs-on: windows-latest-xlarge
         - name: linux-x64
           runs-on: ubuntu-latest-xlarge
-          container: ubuntu:19.04
+          container: quay.io/pypa/manylinux_2_28_x86_64
         - name: linux-arm64
           runs-on: ubuntu-latest-xlarge-arm64
-          container: ubuntu:19.04
+          container: quay.io/pypa/manylinux_2_28_aarch64
         - name: linux-musl-x64
           runs-on: ubuntu-latest-xlarge
           container: alpine:3.17
@@ -43,92 +43,13 @@ jobs:
       - uses: actions/checkout@v4
 
 
-      - name: Install Dependencies (Linux)
-        if: matrix.runtime.name == 'linux-x64'
-        shell: bash
-        run: |
-          cat > /etc/apt/sources.list << EOF
-          deb http://archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse
-          deb http://archive.ubuntu.com/ubuntu/ focal-updates main restricted universe multiverse
-          deb http://archive.ubuntu.com/ubuntu/ focal-backports main restricted universe multiverse
-          deb http://security.ubuntu.com/ubuntu focal-security main restricted universe multiverse
-          EOF
-
-
-      - name: Install Dependencies (Linux)
-        if: matrix.runtime.name == 'linux-arm64'
-        shell: bash
-        run: |
-          cat > /etc/apt/sources.list << EOF
-          deb http://ports.ubuntu.com/ubuntu-ports/ focal main restricted universe multiverse
-          deb http://ports.ubuntu.com/ubuntu-ports/ focal-updates main restricted universe multiverse
-          deb http://ports.ubuntu.com/ubuntu-ports/ focal-backports main restricted universe multiverse
-          deb http://ports.ubuntu.com/ubuntu-ports/ focal-security main restricted universe multiverse
-          EOF
-          
-
       - name: Install Build Tools
         if: matrix.runtime.name == 'linux-x64' || matrix.runtime.name == 'linux-arm64'
         shell: bash
         run: |
-          apt update --yes
-          apt upgrade --yes
-          apt install wget git cmake fontconfig --yes
-
-          
-      - name: Install Clang
-        if: matrix.runtime.name == 'linux-x64' || matrix.runtime.name == 'linux-arm64'
-        shell: bash
-        run: |
-          apt install --yes software-properties-common
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
-          add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-15 main"
-          
-          apt update --yes
-          apt install --yes clang-15 lldb-15 lld-15 libstdc++-10-dev
-          
-          update-alternatives --install /usr/bin/cc cc /usr/bin/clang-15 100
-          update-alternatives --install /usr/bin/c++ c++ /usr/bin/clang++-15 100
-          
-          update-alternatives --config cc
-          update-alternatives --config c++
-          
-          cc --version
-          c++ --version
-          update-alternatives --install /usr/bin/clang clang /usr/bin/clang-15 100
-          update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-15 100
-          
-          update-alternatives --config clang
-          update-alternatives --config clang++
-          
-          clang --version
-          clang++ --version
-
-          
-      - name: Install Cmake
-        if: matrix.runtime.name == 'linux-x64' || matrix.runtime.name == 'linux-arm64'
-        shell: bash
-        run: |
-          wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | apt-key add -
-          apt-add-repository 'deb https://apt.kitware.com/ubuntu/ focal main'
-          apt update
-          apt install cmake --yes
-          cmake --version
-
-          
-      - name: Install Python 3.10
-        if: matrix.runtime.name == 'linux-x64' || matrix.runtime.name == 'linux-arm64'
-        shell: bash
-        run: |
-            apt install build-essential zlib1g-dev libncurses5-dev libgdbm-dev libnss3-dev libssl-dev libreadline-dev libffi-dev wget --yes
-            wget https://www.python.org/ftp/python/3.10.19/Python-3.10.19.tgz
-            tar xzf Python-3.10.19.tgz
-            cd Python-3.10.19
-            
-            ./configure --enable-optimizations
-            make --silent
-            make install --silent
-            python3 --version
+          dnf update -y
+          dnf install -y wget curl git cmake fontconfig tar xz gzip findutils which patch
+          dnf install -y clang lldb lld libstdc++-devel make gcc gcc-c++ cmake
 
             
       - name: Install Build Tools (Alpine)
@@ -272,10 +193,31 @@ jobs:
           path: output
             
 
-      - name: Setup .NET 8.0 SDK
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8.0.x'
+      - name: Setup .NET 6.0 SDK (Windows)
+        if: startsWith(matrix.runtime.name, 'win-')
+        shell: pwsh
+        run: |
+          $arch = "${{ matrix.runtime.name }}".Replace("win-", "")
+      
+          $script = "$env:RUNNER_TEMP\dotnet-install.ps1"
+          $installDir = "$env:RUNNER_TEMP\dotnet-$arch"
+      
+          Invoke-WebRequest -Uri https://dot.net/v1/dotnet-install.ps1 -OutFile $script
+          & $script -Channel 6.0 -Architecture $arch -InstallDir $installDir
+      
+          Add-Content -Path $env:GITHUB_PATH -Value $installDir
+          Add-Content -Path $env:GITHUB_ENV -Value "DOTNET_ROOT=$installDir"
+
+      
+      - name: Setup .NET 6.0 SDK (Unix)
+        if: startsWith(matrix.runtime.name, 'win-') == false
+        shell: bash
+        run: |
+          curl -sSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
+          INSTALL_DIR="$HOME/.dotnet"
+          bash /tmp/dotnet-install.sh --channel 6.0 --install-dir "$INSTALL_DIR"
+          echo "$INSTALL_DIR" >> $GITHUB_PATH
+          echo "DOTNET_ROOT=$INSTALL_DIR" >> $GITHUB_ENV
 
           
       - name: Test build artifacts
