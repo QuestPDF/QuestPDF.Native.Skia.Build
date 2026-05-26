@@ -78,7 +78,9 @@ endif()
 
 # Windows configuration
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    if(CMAKE_GENERATOR_PLATFORM MATCHES "Win32")
+    if(CMAKE_GENERATOR_PLATFORM MATCHES "ARM64")
+        set(WIN_ARCH "arm64")
+    elseif(CMAKE_GENERATOR_PLATFORM MATCHES "Win32")
         set(WIN_ARCH "x86")
     else()
         set(WIN_ARCH "x64")
@@ -90,17 +92,4 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(WINDOWS_SDK_PATH "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/${WIN_ARCH}")
     target_link_libraries(QuestPdfSkia PRIVATE "${WINDOWS_SDK_PATH}/fontsub.lib")
     target_link_libraries(QuestPdfSkia PRIVATE "${WINDOWS_SDK_PATH}/dwrite.lib")
-endif()
-
-
-# WebAssembly configuration
-if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-    set_target_properties(QuestPdfSkia PROPERTIES
-        OUTPUT_NAME "libQuestPdfSkia"
-        SUFFIX ".wasm"
-        LINK_FLAGS "-Os -s SIDE_MODULE=1 -s STANDALONE_WASM --no-entry"
-    )
-
-    file(GLOB SKIA_LIBRARY "${SKIA_DIR}/out/release/*.a")
-    target_link_libraries(QuestPdfSkia PRIVATE ${SKIA_LIBRARY})
 endif()
