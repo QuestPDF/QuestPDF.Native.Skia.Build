@@ -9,6 +9,7 @@ internal static class SkNativeDependencyProvider
     {
         "win-x86",
         "win-x64",
+        "win-arm64",
         "linux-x64",
         "linux-arm64",
         "linux-musl-x64",
