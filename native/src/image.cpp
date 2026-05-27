@@ -80,14 +80,12 @@ struct SkImageDetails {
     int encodedDataSize;
 };
 
-QUEST_API SkImageDetails image_get_details(SkImage *image) {
-    SkImageDetails details;
+QUEST_API void image_get_details(SkImage *image, SkImageDetails* out_details) {
+    SkImageDetails& details = *out_details;
 
     details.width = image->width();
     details.height = image->height();
     details.encodedDataSize = image->refEncodedData()->size();
-
-    return details;
 }
 
 QUEST_API const SkData *image_get_encoded_data(SkImage *image) {

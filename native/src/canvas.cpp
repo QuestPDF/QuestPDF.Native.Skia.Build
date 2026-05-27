@@ -90,12 +90,12 @@ QUEST_API void canvas_annotate_destination_link(SkCanvas *canvas, float width, f
     data->unref();
 }
 
-QUEST_API void canvas_draw_line(SkCanvas *canvas, SkPoint start, SkPoint end, SkPaint* paint) {
-    canvas->drawLine(start, end, *paint);
+QUEST_API void canvas_draw_line(SkCanvas *canvas, const SkPoint* start, const SkPoint* end, SkPaint* paint) {
+    canvas->drawLine(*start, *end, *paint);
 }
 
-QUEST_API void canvas_draw_rectangle(SkCanvas *canvas, SkRect rect, SkPaint* paint) {
-    canvas->drawRect(rect, *paint);
+QUEST_API void canvas_draw_rectangle(SkCanvas *canvas, const SkRect* rect, SkPaint* paint) {
+    canvas->drawRect(*rect, *paint);
 }
 
 struct SKRoundedRect {
@@ -258,9 +258,9 @@ SkPath createRoundedRectPath(const SKRoundedRect &roundedRect) {
     return pathBuilder.detach();
 }
 
-QUEST_API void canvas_draw_complex_border(SkCanvas *canvas, SKRoundedRect innerRect, SKRoundedRect outerRect, SkPaint* paint) {
-    const auto innerPath = createRoundedRectPath(innerRect);
-    const auto outerPath = createRoundedRectPath(outerRect);
+QUEST_API void canvas_draw_complex_border(SkCanvas *canvas, const SKRoundedRect* innerRect, const SKRoundedRect* outerRect, SkPaint* paint) {
+    const auto innerPath = createRoundedRectPath(*innerRect);
+    const auto outerPath = createRoundedRectPath(*outerRect);
 
     SkPathBuilder borderPathBuilder;
     borderPathBuilder.addPath(outerPath);
@@ -278,21 +278,21 @@ struct SKBoxShadow {
     SkColor color;
 };
 
-QUEST_API void canvas_draw_shadow(SkCanvas *canvas, SKRoundedRect shadowRect, SKBoxShadow shadow) {
-    if (shadow.color == 0)
+QUEST_API void canvas_draw_shadow(SkCanvas *canvas, const SKRoundedRect* shadowRect, const SKBoxShadow* shadow) {
+    if (shadow->color == 0)
         return;
 
     SkPaint shadowPaint;
-    shadowPaint.setColor(shadow.color);
+    shadowPaint.setColor(shadow->color);
     shadowPaint.setAntiAlias(true);
 
-    if (shadow.blur > 0)
-        shadowPaint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, shadow.blur));
+    if (shadow->blur > 0)
+        shadowPaint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, shadow->blur));
 
     canvas->save();
-    canvas->translate(shadow.offsetX, shadow.offsetY);
+    canvas->translate(shadow->offsetX, shadow->offsetY);
 
-    const auto shadowPath = createRoundedRectPath(shadowRect);
+    const auto shadowPath = createRoundedRectPath(*shadowRect);
     canvas->drawPath(shadowPath, shadowPaint);
 
     canvas->restore();
@@ -326,7 +326,7 @@ QUEST_API void canvas_draw_svg(SkCanvas *canvas, SkSVGDOM *svg, float width, flo
     svg->render(canvas);
 }
 
-QUEST_API void canvas_draw_overflow_area(SkCanvas *canvas, SkRect position) {
+QUEST_API void canvas_draw_overflow_area(SkCanvas *canvas, const SkRect* position) {
     // configuration
     const float stripeScale = 6;
     const float stripeThickness = 1.5;
@@ -347,33 +347,33 @@ QUEST_API void canvas_draw_overflow_area(SkCanvas *canvas, SkRect position) {
     // position calculation
     const float inflate = stripeScale * 2;
     auto targetArea = SkRect::MakeLTRB(
-            position.left() - inflate,
-            position.top() - inflate,
-            position.right() + inflate,
-            position.bottom() + inflate);
+            position->left() - inflate,
+            position->top() - inflate,
+            position->right() + inflate,
+            position->bottom() + inflate);
 
     // draw
     canvas->drawRect(targetArea, paint);
 }
 
-QUEST_API void canvas_clip_overflow_area(SkCanvas *canvas, SkRect availableSpace, SkRect requiredSpace) {
+QUEST_API void canvas_clip_overflow_area(SkCanvas *canvas, const SkRect* availableSpace, const SkRect* requiredSpace) {
     auto removeArea = SkRect::MakeWH(
-            std::min(availableSpace.right(), requiredSpace.right()),
-            std::min(availableSpace.bottom(), requiredSpace.bottom()));
+            std::min(availableSpace->right(), requiredSpace->right()),
+            std::min(availableSpace->bottom(), requiredSpace->bottom()));
 
     SkPathBuilder pathBuilder;
-    pathBuilder.addRect(requiredSpace, SkPathDirection::kCW);
+    pathBuilder.addRect(*requiredSpace, SkPathDirection::kCW);
     pathBuilder.addRect(removeArea, SkPathDirection::kCCW);
 
     canvas->clipPath(pathBuilder.detach());
 }
 
-QUEST_API void canvas_clip_rectangle(SkCanvas *canvas, SkRect clipArea) {
-    canvas->clipRect(clipArea, true);
+QUEST_API void canvas_clip_rectangle(SkCanvas *canvas, const SkRect* clipArea) {
+    canvas->clipRect(*clipArea, true);
 }
 
-QUEST_API void canvas_clip_rounded_rectangle(SkCanvas *canvas, SKRoundedRect rect) {
-    const auto path = createRoundedRectPath(rect);
+QUEST_API void canvas_clip_rounded_rectangle(SkCanvas *canvas, const SKRoundedRect* rect) {
+    const auto path = createRoundedRectPath(*rect);
     canvas->clipPath(path, true);
 }
 
@@ -391,11 +391,11 @@ struct SkCanvasMatrix {
     float Perspective3;
 };
 
-QUEST_API SkCanvasMatrix canvas_get_matrix9(SkCanvas *canvas) {
+QUEST_API void canvas_get_matrix9(SkCanvas *canvas, SkCanvasMatrix* out_matrix) {
     SkScalar array[9];
     canvas->getLocalToDeviceAs3x3().get9(array);
 
-    SkCanvasMatrix matrix;
+    SkCanvasMatrix& matrix = *out_matrix;
     matrix.ScaleX = array[0];
     matrix.SkewX = array[1];
     matrix.TranslateX = array[2];
@@ -407,11 +407,10 @@ QUEST_API SkCanvasMatrix canvas_get_matrix9(SkCanvas *canvas) {
     matrix.Perspective1 = array[6];
     matrix.Perspective2 = array[7];
     matrix.Perspective3 = array[8];
-
-    return matrix;
 }
 
-QUEST_API void canvas_set_matrix9(SkCanvas *canvas, SkCanvasMatrix matrix) {
+QUEST_API void canvas_set_matrix9(SkCanvas *canvas, const SkCanvasMatrix* matrixPtr) {
+    const SkCanvasMatrix& matrix = *matrixPtr;
     SkScalar array[9];
 
     array[0] = matrix.ScaleX;

@@ -14,7 +14,9 @@ struct ParagraphStyleConfiguration {
     char* lineClampEllipsis;
 };
 
-QUEST_API skia::textlayout::ParagraphBuilder *paragraph_builder_create(ParagraphStyleConfiguration configuration, SkUnicode *unicode, skia::textlayout::FontCollection *fontCollection) {
+QUEST_API skia::textlayout::ParagraphBuilder *paragraph_builder_create(const ParagraphStyleConfiguration* configurationPtr, SkUnicode *unicode, skia::textlayout::FontCollection *fontCollection) {
+    const ParagraphStyleConfiguration& configuration = *configurationPtr;
+
     skia::textlayout::ParagraphStyle paragraphStyle = skia::textlayout::ParagraphStyle();
     paragraphStyle.setTextAlign(configuration.alignment);
     paragraphStyle.setTextDirection(configuration.direction);
@@ -40,8 +42,8 @@ QUEST_API void paragraph_builder_add_text(skia::textlayout::ParagraphBuilder *pa
     paragraphBuilder->pop();
 }
 
-QUEST_API void paragraph_builder_add_placeholder(skia::textlayout::ParagraphBuilder *paragraphBuilder, skia::textlayout::PlaceholderStyle style) {
-    paragraphBuilder->addPlaceholder(style);
+QUEST_API void paragraph_builder_add_placeholder(skia::textlayout::ParagraphBuilder *paragraphBuilder, const skia::textlayout::PlaceholderStyle* style) {
+    paragraphBuilder->addPlaceholder(*style);
 }
 
 QUEST_API skia::textlayout::Paragraph *paragraph_builder_create_paragraph(skia::textlayout::ParagraphBuilder *paragraphBuilder) {

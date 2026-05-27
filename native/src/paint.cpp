@@ -23,7 +23,7 @@ extern "C" {
         paint->setColor(color);
     }
 
-    QUEST_API void paint_set_linear_gradient(SkPaint* paint, SkPoint start, SkPoint end, int colorsLength, SkColor* colors) {
+    QUEST_API void paint_set_linear_gradient(SkPaint* paint, const SkPoint* start, const SkPoint* end, int colorsLength, SkColor* colors) {
         // SkGradient only accepts SkColor4f
         std::vector<SkColor4f> colors4f(colorsLength);
 
@@ -31,7 +31,7 @@ extern "C" {
             colors4f[i] = SkColor4f::FromColor(colors[i]);
 
         // define gradient
-        const SkPoint points[2] = { start, end };
+        const SkPoint points[2] = { *start, *end };
         const auto gradient = SkGradient({SkSpan(colors4f.data(), colorsLength), {}, SkTileMode::kClamp}, { });
         const auto shader = SkShaders::LinearGradient(points, gradient);
 

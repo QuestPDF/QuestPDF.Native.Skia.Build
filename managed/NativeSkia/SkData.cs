@@ -39,7 +39,7 @@ internal sealed class SkData : IDisposable
     
     public byte[] ToBytes()
     {
-        var content = API.data_get_bytes(Instance);
+        API.data_get_bytes(Instance, out var content);
         
         var result = new byte[content.length];
         Marshal.Copy(content.bytes, result, 0, content.length);
@@ -80,7 +80,7 @@ internal sealed class SkData : IDisposable
         }
     
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern GetBytesFromDataResult data_get_bytes(IntPtr data);
+        public static extern void data_get_bytes(IntPtr data, out GetBytesFromDataResult result);
     
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void data_unref(IntPtr data);

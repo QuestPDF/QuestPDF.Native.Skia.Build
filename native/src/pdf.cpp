@@ -94,8 +94,8 @@ SkPDF::Metadata map_pdf_metadata(PdfDocumentMetadata metadata) {
 
 extern "C" {
 
-QUEST_API SkDocument *pdf_document_create(SkDynamicMemoryWStream *stream, PdfDocumentMetadata metadata) {
-    return SkPDF::MakeDocument(stream, map_pdf_metadata(metadata)).release();
+QUEST_API SkDocument *pdf_document_create(SkDynamicMemoryWStream *stream, const PdfDocumentMetadata* metadata) {
+    return SkPDF::MakeDocument(stream, map_pdf_metadata(*metadata)).release();
 }
 
 }

@@ -34,7 +34,9 @@ struct TextStyleConfiguration {
     SkScalar baselineOffset;
 };
 
-QUEST_API skia::textlayout::TextStyle *text_style_create(TextStyleConfiguration configuration) {
+QUEST_API skia::textlayout::TextStyle *text_style_create(const TextStyleConfiguration* configurationPtr) {
+    const TextStyleConfiguration& configuration = *configurationPtr;
+
     auto textStyle = new skia::textlayout::TextStyle();
 
     textStyle->setFontSize(configuration.fontSize);

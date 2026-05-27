@@ -21,12 +21,10 @@ struct GetBytesFromDataResult {
     const uint8_t *bytes;
 };
 
-QUEST_API GetBytesFromDataResult data_get_bytes(SkData *data) {
-    GetBytesFromDataResult result;
+QUEST_API void data_get_bytes(SkData *data, GetBytesFromDataResult* out_result) {
+    GetBytesFromDataResult& result = *out_result;
     result.length = data->size();
     result.bytes = data->bytes();
-
-    return result;
 }
 
 QUEST_API void data_unref(SkData *data) {

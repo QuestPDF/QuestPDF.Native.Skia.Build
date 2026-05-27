@@ -7,8 +7,8 @@
 
 extern "C" {
 
-QUEST_API SkCanvas *svg_create_canvas(SkRect bounds, SkWStream *stream) {
-    return SkSVGCanvas::Make(bounds, stream).release();
+QUEST_API SkCanvas *svg_create_canvas(const SkRect* bounds, SkWStream *stream) {
+    return SkSVGCanvas::Make(*bounds, stream).release();
 }
 
 }
