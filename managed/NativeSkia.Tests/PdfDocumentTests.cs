@@ -42,8 +42,8 @@ public class PdfDocumentTests
             Producer = new SkText("Arabic producer: اللغة العربية"),
             Language = new SkText("en-US"),
             
-            CreationDate = new SkDateTime(DateTimeOffset.Now - TimeSpan.FromHours(1234)),
-            ModificationDate = new SkDateTime(DateTimeOffset.Now - TimeSpan.FromHours(123)),
+            CreationDate = new SkDateTime(new DateTimeOffset(2026, 5, 10, 12, 34, 56, TimeSpan.Zero)),
+            ModificationDate = new SkDateTime(new DateTimeOffset(2026, 6, 13, 22, 20, 18, TimeSpan.Zero)),
             
             PDFA_Conformance = PDFA_Conformance.PDFA_3B,
             PDFUA_Conformance = PDFUA_Conformance.PDFUA_1,
