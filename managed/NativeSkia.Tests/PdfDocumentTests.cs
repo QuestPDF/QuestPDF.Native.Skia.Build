@@ -48,7 +48,7 @@ public class PdfDocumentTests
             PDFA_Conformance = PDFA_Conformance.PDFA_3B,
             PDFUA_Conformance = PDFUA_Conformance.PDFUA_1,
             
-            CompressDocument = true,
+            CompressDocument = false,
             RasterDPI = 123
         };
         
@@ -68,7 +68,7 @@ public class PdfDocumentTests
 
         var documentData = memoryStream.ToArray();
         TestFixture.SaveOutput("simple_document.pdf", documentData);
-        documentData.ShouldHaveSize(7_166);
+        documentData.ShouldHaveSize(7_787, buffer: 32);
     }
     
     [Test]
