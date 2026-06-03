@@ -72,6 +72,49 @@ public class PdfDocumentTests
     }
     
     [Test]
+    public void Compression()
+    {
+        var withoutCompressionSize = MeasureGenerateDocumentSize(false);
+        var withCompressionSize = MeasureGenerateDocumentSize(true);
+
+        (withoutCompressionSize / (float)withCompressionSize).Should().BeGreaterThan(3);
+
+        static int MeasureGenerateDocumentSize(bool enableCompression)
+        {
+            var metadata = new SkPdfDocumentMetadata
+            {
+                Title = new SkText("Native Skia Generation Test"),
+                Language = new SkText("en-US"),
+            
+                CreationDate = new SkDateTime(new DateTimeOffset(2026, 5, 10, 12, 34, 56, TimeSpan.Zero)),
+                ModificationDate = new SkDateTime(new DateTimeOffset(2026, 6, 13, 22, 20, 18, TimeSpan.Zero)),
+            
+                PDFA_Conformance = PDFA_Conformance.PDFA_3B,
+                PDFUA_Conformance = PDFUA_Conformance.PDFUA_1,
+            
+                CompressDocument = enableCompression
+            };
+            
+            using var memoryStream = new MemoryStream();
+            using var skiaStream = new SkWriteStream(memoryStream);
+            using var pdf = SkPdfDocument.Create(skiaStream, metadata);
+        
+            using var canvas = pdf.BeginPage(400, 600);
+        
+            foreach (var i in Enumerable.Range(0, 1000))
+            {
+                canvas.DrawFilledRectangle(new SkRect(50, 50, 350 + i / 20f, 550+ i / 50f), 0xFF673AB7);
+            }
+
+            pdf.EndPage();
+            pdf.Close();
+            skiaStream.Flush();
+
+            return memoryStream.ToArray().Length;
+        }
+    }
+    
+    [Test]
     public void AnnotationUrl()
     {
         using var webpageImage = SkImage.FromData(SkData.FromFile("Input/webpage.jpg"));
