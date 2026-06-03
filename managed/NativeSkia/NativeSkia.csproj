@@ -6,15 +6,11 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>12</LangVersion>
         <RootNamespace>QuestPDF.Skia</RootNamespace>
-        <TargetFrameworks>net8.0;net6.0;netstandard2.0</TargetFrameworks>
+        <TargetFramework>net8.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="NativeSkia.Tests" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-        <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
     </ItemGroup>
 
 </Project>
