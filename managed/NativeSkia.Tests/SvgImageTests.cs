@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NUnit.Framework;
 using QuestPDF.Skia;
 using QuestPDF.Skia.Text;
@@ -13,15 +12,15 @@ public class SvgImageTests
         var svgContent = File.ReadAllText("Input/icon.svg");
         using var svg = new SkSvgImage(svgContent, SkResourceProvider.Local, SkFontManager.Local);
 
-        svg.Instance.Should().NotBe(0);
-        
-        svg.Size.Width.Should().Be(75.3201294f);
-        svg.Size.WidthUnit.Should().Be(SkSvgImageSize.Unit.Millimeters);
-        
-        svg.Size.Height.Should().Be(92.6041641f);
-        svg.Size.HeightUnit.Should().Be(SkSvgImageSize.Unit.Millimeters);
-        
-        svg.ViewBox.Should().Be(new SkRect(0, 0, 76f, 93f));
+        Assert.That(svg.Instance, Is.Not.EqualTo(IntPtr.Zero));
+
+        Assert.That(svg.Size.Width, Is.EqualTo(75.3201294f));
+        Assert.That(svg.Size.WidthUnit, Is.EqualTo(SkSvgImageSize.Unit.Millimeters));
+
+        Assert.That(svg.Size.Height, Is.EqualTo(92.6041641f));
+        Assert.That(svg.Size.HeightUnit, Is.EqualTo(SkSvgImageSize.Unit.Millimeters));
+
+        Assert.That(svg.ViewBox, Is.EqualTo(new SkRect(0, 0, 76f, 93f)));
     }
 
     [Test]

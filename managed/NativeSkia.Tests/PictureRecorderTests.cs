@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NUnit.Framework;
 using QuestPDF.Skia;
 
@@ -22,7 +21,7 @@ public class PictureRecorderTests
         
         // serialization test
         using var serializedPictureData = picture.Serialize();
-        serializedPictureData.ToBytes().Length.Should().BeGreaterThan(0);
+        Assert.That(serializedPictureData.ToBytes().Length, Is.GreaterThan(0));
         
         var serializedPictureBytes = serializedPictureData.ToBytes();
         using var deserializedPictureData = SkData.FromBinary(serializedPictureBytes);

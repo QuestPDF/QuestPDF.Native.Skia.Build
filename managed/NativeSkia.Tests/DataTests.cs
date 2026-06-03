@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NUnit.Framework;
 using QuestPDF.Skia;
 
@@ -13,14 +12,14 @@ public class DataTests
      
         // read file via C# API
         var expectedContent = File.ReadAllBytes(path);
-        expectedContent.Length.Should().Be(28_357);
+        Assert.That(expectedContent.Length, Is.EqualTo(28_357));
         
         // // read file via NativeSkia API
         using var data = SkData.FromFile(path);
         var actualContent = data.ToBytes();
         
         // compare
-        actualContent.Should().BeEquivalentTo(expectedContent);
+        Assert.That(actualContent, Is.EqualTo(expectedContent));
     }
     
     [Test]
@@ -30,13 +29,13 @@ public class DataTests
      
         // read file via C# API
         var expectedContent = File.ReadAllBytes(path);
-        expectedContent.Length.Should().Be(28_357);
+        Assert.That(expectedContent.Length, Is.EqualTo(28_357));
         
         // read file via NativeSkia API
         using var data = SkData.FromBinary(expectedContent);
         var actualContent = data.ToBytes();
         
         // compare
-        actualContent.Should().BeEquivalentTo(expectedContent);
+        Assert.That(actualContent, Is.EqualTo(expectedContent));
     }
 }

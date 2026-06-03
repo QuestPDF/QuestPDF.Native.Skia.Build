@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using FluentAssertions;
 using QuestPDF.Skia;
 
 namespace NativeSkia.Tests;
@@ -10,9 +9,9 @@ public class ImageTests
     public void GeneratePlaceholder()
     {
         using var image = SkImage.GeneratePlaceholder(400, 300, 0xFF64B5F6, 0xFFBA68C8);
-        image.Width.Should().Be(400);
-        image.Height.Should().Be(300);
-        image.EncodedDataSize.Should().Be(1659);
+        Assert.That(image.Width, Is.EqualTo(400));
+        Assert.That(image.Height, Is.EqualTo(300));
+        Assert.That(image.EncodedDataSize, Is.EqualTo(1659));
         
         var content = image.GetEncodedData();
         content.ShouldHaveSize(1_659);
@@ -28,23 +27,23 @@ public class ImageTests
         using var sampleImageData = SkData.FromFile("Input/opaque-image.jpg");
         using var sampleImage = SkImage.FromData(sampleImageData);
         
-        sampleImage.Width.Should().Be(800);
-        sampleImage.Height.Should().Be(600);
-        
+        Assert.That(sampleImage.Width, Is.EqualTo(800));
+        Assert.That(sampleImage.Height, Is.EqualTo(600));
+
         // don't scale images to if target resolution is bigger than original
         using var biggerImage = sampleImage.ResizeAndCompress(40_000, 30_000, 90, true);
         using var biggerImageData = biggerImage.GetEncodedData();
         
-        biggerImage.Width.Should().Be(800);
-        biggerImage.Height.Should().Be(600);
+        Assert.That(biggerImage.Width, Is.EqualTo(800));
+        Assert.That(biggerImage.Height, Is.EqualTo(600));
         biggerImageData.ShouldHaveSize(67_817);
         
         // scale images to if target resolution is smaller than original
         using var smallerImage = sampleImage.ResizeAndCompress(80, 60, 90, true);
         using var smallerImageData = smallerImage.GetEncodedData();
         
-        smallerImage.Width.Should().Be(80);
-        smallerImage.Height.Should().Be(60);
+        Assert.That(smallerImage.Width, Is.EqualTo(80));
+        Assert.That(smallerImage.Height, Is.EqualTo(60));
         smallerImageData.ShouldHaveSize(2_707);
     }
     
@@ -73,14 +72,14 @@ public class ImageTests
         using var sampleImageData = SkData.FromFile("Input/transparent-image.png");
         using var sampleImage = SkImage.FromData(sampleImageData);
         
-        sampleImage.Width.Should().Be(800);
-        sampleImage.Height.Should().Be(600);
-        
+        Assert.That(sampleImage.Width, Is.EqualTo(800));
+        Assert.That(sampleImage.Height, Is.EqualTo(600));
+
         using var resizedImage = sampleImage.ResizeAndCompress(200, 150, 90, true);
         using var resizedImageData = resizedImage.GetEncodedData();
         
-        resizedImage.Width.Should().Be(200);
-        resizedImage.Height.Should().Be(150);
+        Assert.That(resizedImage.Width, Is.EqualTo(200));
+        Assert.That(resizedImage.Height, Is.EqualTo(150));
         resizedImageData.ShouldHaveSize(7_230, buffer: 10);
         
         TestFixture.SaveOutput("image_transparent_resized.png", resizedImageData);

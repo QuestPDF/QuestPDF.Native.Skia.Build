@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NUnit.Framework;
 using QuestPDF.Skia;
 using QuestPDF.Skia.Text;

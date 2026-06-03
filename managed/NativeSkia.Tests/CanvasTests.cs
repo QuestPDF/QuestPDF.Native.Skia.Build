@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NUnit.Framework;
 using QuestPDF.Skia;
 
@@ -231,7 +230,7 @@ public class CanvasTests
             Perspective3 = 1
         };
         
-        currentMatrix.Should().BeEquivalentTo(expectedValue);
+        Assert.That(currentMatrix, Is.EqualTo(expectedValue));
     }
     
     [Test]
@@ -258,7 +257,7 @@ public class CanvasTests
         var expectedValue = newValue with { TranslateX = 105, TranslateY = 220 };
         var currentMatrix = canvas.GetCurrentMatrix();
         
-        currentMatrix.Should().BeEquivalentTo(expectedValue);
+        Assert.That(currentMatrix, Is.EqualTo(expectedValue));
     }
     
     [Test]

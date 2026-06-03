@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using FluentAssertions;
 using NUnit.Framework;
 using QuestPDF.Skia;
 
@@ -77,7 +76,7 @@ public class PdfDocumentTests
         var withoutCompressionSize = MeasureGenerateDocumentSize(false);
         var withCompressionSize = MeasureGenerateDocumentSize(true);
 
-        (withoutCompressionSize / (float)withCompressionSize).Should().BeGreaterThan(3);
+        Assert.That(withoutCompressionSize / (float)withCompressionSize, Is.GreaterThan(3));
 
         static int MeasureGenerateDocumentSize(bool enableCompression)
         {

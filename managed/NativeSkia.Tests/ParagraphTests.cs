@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NUnit.Framework;
 using QuestPDF.Skia;
 using QuestPDF.Skia.Text;
@@ -93,7 +92,7 @@ public class ParagraphTests
         TestFixture.SaveOutput("document_paragraph.pdf", documentData);
         documentData.ShouldHaveSize(123_400, buffer: 1000);
 
-        paragraph.GetUnresolvedCodepoints().Should().BeEmpty();
+        Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
     }
     
     [Test]
@@ -139,22 +138,22 @@ public class ParagraphTests
 
         // values differ slightly between platforms
         var size = paragraph.GetSize();
-        size.width.Should().BeApproximately(130f, 1f);
-        size.height.Should().Be(105);
-        
+        Assert.That(size.width, Is.EqualTo(130f).Within(1f));
+        Assert.That(size.height, Is.EqualTo(105));
+
         var lineExtents = paragraph.GetLineExtents();
-        lineExtents.Should().HaveCount(3);
+        Assert.That(lineExtents, Has.Length.EqualTo(3));
+
+        Assert.That(lineExtents[0].Top, Is.EqualTo(0));
+        Assert.That(lineExtents[0].Bottom, Is.EqualTo(30));
+
+        Assert.That(lineExtents[1].Top, Is.EqualTo(30));
+        Assert.That(lineExtents[1].Bottom, Is.EqualTo(65));
+
+        Assert.That(lineExtents[2].Top, Is.EqualTo(65));
+        Assert.That(lineExtents[2].Bottom, Is.EqualTo(105));
         
-        lineExtents[0].Top.Should().Be(0);
-        lineExtents[0].Bottom.Should().Be(30);
-        
-        lineExtents[1].Top.Should().Be(30);
-        lineExtents[1].Bottom.Should().Be(65);
-        
-        lineExtents[2].Top.Should().Be(65);
-        lineExtents[2].Bottom.Should().Be(105);
-        
-        paragraph.GetUnresolvedCodepoints().Should().BeEmpty();
+        Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
     }
     
     [Test]
@@ -229,7 +228,7 @@ public class ParagraphTests
         TestFixture.SaveOutput("font_features.pdf", documentData);
         documentData.ShouldHaveSize(22300, 100);
 
-        paragraph.GetUnresolvedCodepoints().Should().BeEmpty();
+        Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
     }
     
     [Test]
@@ -259,7 +258,7 @@ public class ParagraphTests
         paragraph.PlanLayout(400);
 
         var unresolvedCodepoints = paragraph.GetUnresolvedCodepoints();
-        unresolvedCodepoints.Should().BeEquivalentTo(new[] { 128293, 28779 });
+        Assert.That(unresolvedCodepoints, Is.EquivalentTo(new[] { 128293, 28779 }));
     }
     
     [Test]
@@ -332,7 +331,7 @@ public class ParagraphTests
         TestFixture.SaveOutput("document_subscript.pdf", documentData);
         documentData.ShouldHaveSize(8_600, buffer: 100);
         
-        paragraph.GetUnresolvedCodepoints().Should().BeEmpty();
+        Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
     }
     
     [Test]
@@ -373,7 +372,7 @@ public class ParagraphTests
         TestFixture.SaveOutput("document_with_paragraph_and_inlined_hyperlink.pdf", documentData);
         documentData.ShouldHaveSize(25_000, buffer: 150);
         
-        paragraph.GetUnresolvedCodepoints().Should().BeEmpty();
+        Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
         
         SkParagraph BuildParagraph()
         {

@@ -1,4 +1,3 @@
-using FluentAssertions;
 using NUnit.Framework;
 using QuestPDF.Skia;
 
@@ -22,7 +21,7 @@ public class TestFixture
     internal static void SaveOutput(string path, SkData data)
     {
         var content = data.ToBytes();
-        content.Length.Should().BeGreaterThan(0);
+        Assert.That(content.Length, Is.GreaterThan(0));
         SaveOutput(path, content);
     }
 
