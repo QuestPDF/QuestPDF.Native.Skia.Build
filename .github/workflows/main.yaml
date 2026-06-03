@@ -10,13 +10,13 @@ jobs:
     name: ${{ matrix.runtime.name }}
     runs-on: ${{ matrix.runtime.runs-on }}
     container: ${{ matrix.runtime.container }}
-    timeout-minutes: 40
-      
+    timeout-minutes: 50
+
     strategy:
       fail-fast: false
       max-parallel: 3
       matrix:
-        runtime: 
+        runtime:
         - name: win-x64
           runs-on: windows-latest-xlarge
         - name: win-x86
@@ -25,10 +25,10 @@ jobs:
           runs-on: windows-latest-xlarge-arm64
         - name: linux-x64
           runs-on: ubuntu-latest-xlarge
-          container: quay.io/pypa/manylinux_2_28_x86_64
+          container: quay.io/pypa/manylinux2014_x86_64
         - name: linux-arm64
           runs-on: ubuntu-latest-xlarge-arm64
-          container: quay.io/pypa/manylinux_2_28_aarch64
+          container: quay.io/pypa/manylinux2014_aarch64
         - name: linux-musl-x64
           runs-on: ubuntu-latest-xlarge
           container: alpine:3.17
@@ -38,7 +38,7 @@ jobs:
           runs-on: macos-latest-xlarge
 
     env:
-      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true    
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
       DEBIAN_FRONTEND: noninteractive
 
     steps:
@@ -49,11 +49,22 @@ jobs:
         if: matrix.runtime.name == 'linux-x64' || matrix.runtime.name == 'linux-arm64'
         shell: bash
         run: |
-          dnf update -y
-          dnf install -y wget curl git cmake libicu tar xz gzip findutils which patch python3
-          dnf install -y clang lldb lld libstdc++-devel make gcc gcc-c++ cmake
+          yum install -y git wget curl which patch tar xz gzip findutils make
 
-            
+          ENABLE=$(ls -d /opt/rh/gcc-toolset-*/enable /opt/rh/devtoolset-*/enable 2>/dev/null | sort -V | tail -1 || true)
+          if [ -n "$ENABLE" ]; then
+            # shellcheck disable=SC1090
+            source "$ENABLE"
+            echo "PATH=$PATH" >> "$GITHUB_ENV"
+            echo "LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}" >> "$GITHUB_ENV"
+          fi
+
+          echo "Toolchain in use:"
+          gcc --version  || { echo "::error::no usable gcc on the image"; exit 1; }
+          g++ --version  || { echo "::error::no usable g++ on the image"; exit 1; }
+          cmake --version
+
+
       - name: Install Build Tools (Alpine)
         if: matrix.runtime.name == 'linux-musl-x64'
         shell: sh
@@ -67,12 +78,10 @@ jobs:
         if: matrix.runtime.name == 'linux-x64' || matrix.runtime.name == 'linux-arm64'
         shell: bash
         run: |
-          # manylinux_2_28 natively bundles pre-compiled Python 3.11
-          # expose it so depot_tools grabs it instead of 3.6
           echo "/opt/python/cp311-cp311/bin" >> $GITHUB_PATH
           ln -sf /opt/python/cp311-cp311/bin/python3 /usr/bin/python3
 
-          
+
       - name: Install Python 3.11
         if: runner.os != 'Linux'
         uses: actions/setup-python@v4
@@ -89,15 +98,15 @@ jobs:
           echo "${PWD}/depot_tools" >> $GITHUB_PATH
           export PATH="${PWD}/depot_tools:${PATH}"
 
-          
+
       - name: Build Skia
         shell: bash
         run: |
           git config --system core.longpaths true
-          
+
           git clone https://github.com/QuestPDF/QuestPDF.Native.Skia --branch chrome/m149 --single-branch --depth 1 skia
           cd skia
-          
+
           bin/fetch-ninja
           python3 tools/git-sync-deps
           COMMON_ARGS='
@@ -147,88 +156,101 @@ jobs:
             skia_enable_ganesh=false
             skia_lex=false
             extra_cflags=["-fPIC", "-fno-rtti"]'
-            
-          if [[ "${{ matrix.runtime.name }}" == linux-* ]]; then
+
+          if [ "${{ matrix.runtime.name }}" = "linux-musl-x64" ]; then
             COMMON_ARGS+=' cc="clang" cxx="clang++"'
+          elif [[ "${{ matrix.runtime.name }}" == linux-* ]]; then
+            COMMON_ARGS+=' cc="gcc" cxx="g++"'
           fi
-          
+
           if [ "${{ runner.os }}" = "macOS" ]; then
             COMMON_ARGS+=' skia_use_fonthost_mac=true'
           fi
-          
+
           if [ "${{ matrix.runtime.name }}" = "win-x86" ]; then
             COMMON_ARGS+=' target_cpu="x86"'
           elif [ "${{ matrix.runtime.name }}" = "win-arm64" ]; then
             COMMON_ARGS+=' target_cpu="arm64"'
           fi
-          
+
           if [ "${{ matrix.runtime.name }}" = "linux-musl-x64" ]; then
             gn gen out/release --args="$COMMON_ARGS"
           else
             bin/gn gen out/release --args="$COMMON_ARGS"
           fi
-          
+
           ninja -C out/release skia svg skparagraph skresources
 
-          
+
       - name: Configure CMake
         shell: bash
         run: |
-          CMAKE_ARGS="
-            -S ${PWD}/native 
-            -B ${PWD}/native/build 
-            -DSKIA_DIR=${PWD}/skia 
-            -DCMAKE_CXX_COMPILER=clang++ 
-            -DCMAKE_C_COMPILER=clang 
-            -DCMAKE_BUILD_TYPE=Release"
-            
-          if [ "${{ matrix.runtime.name }}" = "win-x86" ]; then
-            CMAKE_ARGS+=" -A Win32"
-          elif [ "${{ matrix.runtime.name }}" = "win-arm64" ]; then
-            CMAKE_ARGS+=" -A ARM64"
-          fi
-          
-          cmake $CMAKE_ARGS
+          CC_BIN="clang"
+          CXX_BIN="clang++"
 
-          
+          CMAKE_ARGS=(
+            -S "${PWD}/native"
+            -B "${PWD}/native/build"
+            -DSKIA_DIR="${PWD}/skia"
+            -DCMAKE_BUILD_TYPE=Release
+          )
+
+          if [ "${{ matrix.runtime.name }}" = "linux-x64" ] || [ "${{ matrix.runtime.name }}" = "linux-arm64" ]; then
+            CC_BIN="gcc"
+            CXX_BIN="g++"
+            CMAKE_ARGS+=( -DCMAKE_SHARED_LINKER_FLAGS="-static-libstdc++ -static-libgcc" )
+            CMAKE_ARGS+=( -DCMAKE_MODULE_LINKER_FLAGS="-static-libstdc++ -static-libgcc" )
+          fi
+
+          CMAKE_ARGS+=( -DCMAKE_C_COMPILER="$CC_BIN" -DCMAKE_CXX_COMPILER="$CXX_BIN" )
+
+          if [ "${{ matrix.runtime.name }}" = "win-x86" ]; then
+            CMAKE_ARGS+=( -A Win32 )
+          elif [ "${{ matrix.runtime.name }}" = "win-arm64" ]; then
+            CMAKE_ARGS+=( -A ARM64 )
+          fi
+
+          cmake "${CMAKE_ARGS[@]}"
+
+
       - name: Build CMake
         shell: bash
         run: >
-          cmake 
-          --build ${PWD}/native/build 
+          cmake
+          --build ${PWD}/native/build
           --config Release
 
-          
+
       - name: Copy build artifact to output directory
         shell: bash
         run: |
           mkdir -p output/runtimes/${{ matrix.runtime.name }}/native
           find native/build -type f \( -name "*.dylib" -o -name "*.dll" -o -name "*.so" \) -exec cp {} output/runtimes/${{ matrix.runtime.name }}/native \;
 
-          
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: questpdf-native-libraries-${{ matrix.runtime.name }}
           path: output
-            
+
 
       - name: Setup .NET 8.0 SDK (Windows)
         if: startsWith(matrix.runtime.name, 'win-')
         shell: pwsh
         run: |
           $arch = "${{ matrix.runtime.name }}".Replace("win-", "")
-      
+
           $script = "$env:RUNNER_TEMP\dotnet-install.ps1"
           $installDir = "$env:RUNNER_TEMP\dotnet-$arch"
-      
+
           Invoke-WebRequest -Uri https://dot.net/v1/dotnet-install.ps1 -OutFile $script
           & $script -Channel 8.0 -Architecture $arch -InstallDir $installDir
-      
+
           Add-Content -Path $env:GITHUB_PATH -Value $installDir
           Add-Content -Path $env:GITHUB_ENV -Value "DOTNET_ROOT=$installDir"
 
-      
+
       - name: Setup .NET 8.0 SDK (Unix)
         if: startsWith(matrix.runtime.name, 'win-') == false
         shell: bash
@@ -239,23 +261,23 @@ jobs:
           echo "$INSTALL_DIR" >> $GITHUB_PATH
           echo "DOTNET_ROOT=$INSTALL_DIR" >> $GITHUB_ENV
 
-          
+
       - name: Test build artifacts
         shell: bash
         run: |
           TEST_EXECUTION_PATH='managed/NativeSkia.Tests/bin/Debug/net8.0/${{ matrix.runtime.name }}'
           mkdir -p "$TEST_EXECUTION_PATH"
           cp -R output/* "$TEST_EXECUTION_PATH"
-          
+
           dotnet test managed --framework net8.0 --runtime ${{ matrix.runtime.name }} || TEST_RESULT=$?
-          mkdir -p testOutput/${{ matrix.runtime.name }} 
-          
+          mkdir -p testOutput/${{ matrix.runtime.name }}
+
           ls -lR $TEST_EXECUTION_PATH
           cp -r $TEST_EXECUTION_PATH/Output/* testOutput/${{ matrix.runtime.name }}
 
           exit ${TEST_RESULT:-0}
 
-          
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
