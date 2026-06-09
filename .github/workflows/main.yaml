@@ -85,15 +85,6 @@ jobs:
           python-version: '3.11'
           architecture: ${{ runner.os == 'Windows' && 'x64' || '' }}
 
-
-      - name: Install Skia Build System
-        if: matrix.runtime.name != 'linux-musl-x64'
-        shell: bash
-        run: |
-          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --single-branch --depth 1
-          echo "${PWD}/depot_tools" >> $GITHUB_PATH
-          export PATH="${PWD}/depot_tools:${PATH}"
-
           
       - name: Build Skia
         shell: bash
