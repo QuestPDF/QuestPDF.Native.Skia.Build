@@ -5,18 +5,58 @@ permissions: {}
 on:
   workflow_dispatch:
 
+env:
+  SKIA_BRANCH: chrome/m149
+
 jobs:
+  sync-deps:
+    name: sync-skia-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+ 
+    steps: 
+      - name: Clone Skia and sync dependencies
+        shell: bash
+        env:
+          GIT_SYNC_DEPS_SKIP_EMSDK: 1
+        run: |
+          git clone https://github.com/QuestPDF/QuestPDF.Native.Skia --branch "$SKIA_BRANCH" --single-branch --depth 1 skia
+          cd skia
+          python3 tools/git-sync-deps
+
+ 
+      - name: Pack source tree
+        shell: bash
+        run: |
+          # drop the host-specific gn binary fetched during sync; every target fetches its own
+          rm -f skia/bin/gn skia/bin/gn.exe
+ 
+          # .git dirs of the synced deps roughly double the size and serve no purpose downstream
+          find skia/third_party/externals -type d -name .git -prune -exec rm -rf {} +
+ 
+          tar -czf skia-src.tar.gz skia
+
+ 
+      - name: Upload source artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: skia-src
+          path: skia-src.tar.gz
+          compression-level: 0
+          retention-days: 1
+
+ 
   main:
     name: ${{ matrix.runtime.name }}
+    needs: sync-deps
     runs-on: ${{ matrix.runtime.runs-on }}
     container: ${{ matrix.runtime.container }}
-    timeout-minutes: 40
+    timeout-minutes: 30
       
     strategy:
       fail-fast: false
-      max-parallel: 4
       matrix:
-        runtime: 
+        runtime:
         - name: win-x64
           runs-on: windows-latest
         - name: win-x86
@@ -89,18 +129,33 @@ jobs:
           git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --single-branch --depth 1
           echo "${PWD}/depot_tools" >> $GITHUB_PATH
           export PATH="${PWD}/depot_tools:${PATH}"
-
+ 
+ 
+      - name: Download Skia source
+        uses: actions/download-artifact@v4
+        with:
+          name: skia-src
+ 
+ 
+      - name: Unpack Skia source
+        shell: bash
+        env:
+          # Windows: create real NTFS symlinks (runner is admin) instead of MSYS file copies,
+          # which can fail on links pointing at files extracted later in the archive
+          MSYS: winsymlinks:nativestrict
+        run: |
+          tar -xzf skia-src.tar.gz
+          rm skia-src.tar.gz
+ 
           
       - name: Build Skia
         shell: bash
         run: |
-          git config --system core.longpaths true
-          
-          git clone https://github.com/QuestPDF/QuestPDF.Native.Skia --branch chrome/m149 --single-branch --depth 1 skia
           cd skia
           
           bin/fetch-ninja
           python3 tools/git-sync-deps
+          
           COMMON_ARGS='
             is_official_build=true
             is_component_build=false
