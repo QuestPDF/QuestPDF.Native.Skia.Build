@@ -38,7 +38,8 @@ jobs:
           runs-on: macos-latest
 
     env:
-      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true    
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+      MACOSX_DEPLOYMENT_TARGET: "12.0"
       DEBIAN_FRONTEND: noninteractive
 
     steps:
