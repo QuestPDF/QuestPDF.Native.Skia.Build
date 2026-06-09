@@ -71,15 +71,15 @@ private:
 
 extern "C" {
 
-QUEST_API SkEventWStream *write_stream_create(WriteStreamCallback callback) {
+QUEST_API SkEventWStream *questpdf_skia_write_stream_create(WriteStreamCallback callback) {
     return new SkEventWStream(callback);
 }
 
-QUEST_API void write_stream_flush(SkEventWStream *stream) {
+QUEST_API void questpdf_skia_write_stream_flush(SkEventWStream *stream) {
     stream->flush();
 }
 
-QUEST_API void write_stream_delete(SkEventWStream *stream) {
+QUEST_API void questpdf_skia_write_stream_delete(SkEventWStream *stream) {
     delete stream;
 }
 

@@ -11,7 +11,7 @@
 
 extern "C" {
 
-QUEST_API skresources::ResourceProvider *resource_provider_create(char* resourcesPath, SkFontMgr *fontManager) {
+QUEST_API skresources::ResourceProvider *questpdf_skia_resource_provider_create(char* resourcesPath, SkFontMgr *fontManager) {
     auto decodeStrategy = skresources::ImageDecodeStrategy::kPreDecode;
 
     auto fileProvider = skresources::FileResourceProvider::Make(SkString(resourcesPath), decodeStrategy);

@@ -11,24 +11,24 @@
 
 extern "C" {
 
-QUEST_API SkBitmap *bitmap_create(int width, int height) {
+QUEST_API SkBitmap *questpdf_skia_bitmap_create(int width, int height) {
     auto bitmap = new SkBitmap();
     bitmap->allocN32Pixels(width, height);
     return bitmap;
 }
 
-QUEST_API void bitmap_delete(SkBitmap *bitmap) {
+QUEST_API void questpdf_skia_bitmap_delete(SkBitmap *bitmap) {
     delete bitmap;
 }
 
-QUEST_API SkBitmap *bitmap_load_from_image(SkImage *image) {
+QUEST_API SkBitmap *questpdf_skia_bitmap_load_from_image(SkImage *image) {
     auto targetBitmap = new SkBitmap();
     targetBitmap->allocPixels(image->imageInfo());
     image->readPixels(targetBitmap->pixmap(), 0, 0);
     return targetBitmap;
 }
 
-QUEST_API SkData *bitmap_encode_as_jpg(SkBitmap *bitmap, int quality) {
+QUEST_API SkData *questpdf_skia_bitmap_encode_as_jpg(SkBitmap *bitmap, int quality) {
     SkJpegEncoder::Options encodingOptions;
     encodingOptions.fQuality = quality;
 
@@ -38,7 +38,7 @@ QUEST_API SkData *bitmap_encode_as_jpg(SkBitmap *bitmap, int quality) {
     return stream.detachAsData().release();
 }
 
-QUEST_API SkData *bitmap_encode_as_png(SkBitmap *bitmap) {
+QUEST_API SkData *questpdf_skia_bitmap_encode_as_png(SkBitmap *bitmap) {
     SkPngEncoder::Options encodingOptions;
 
     SkDynamicMemoryWStream stream;
@@ -47,7 +47,7 @@ QUEST_API SkData *bitmap_encode_as_png(SkBitmap *bitmap) {
     return stream.detachAsData().release();
 }
 
-QUEST_API SkData *bitmap_encode_as_webp(SkBitmap *bitmap, int quality) {
+QUEST_API SkData *questpdf_skia_bitmap_encode_as_webp(SkBitmap *bitmap, int quality) {
     SkWebpEncoder::Options encodingOptions;
     encodingOptions.fCompression = SkWebpEncoder::Compression::kLossy;
     encodingOptions.fQuality = static_cast<float>(quality);

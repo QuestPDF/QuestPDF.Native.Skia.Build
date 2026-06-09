@@ -5,7 +5,7 @@
 
 extern "C" {
 
-QUEST_API void typeface_unref(SkTypeface *typeface) {
+QUEST_API void questpdf_skia_typeface_unref(SkTypeface *typeface) {
     typeface->unref();
 }
 

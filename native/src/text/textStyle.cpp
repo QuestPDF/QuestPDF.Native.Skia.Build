@@ -34,7 +34,7 @@ struct TextStyleConfiguration {
     SkScalar baselineOffset;
 };
 
-QUEST_API skia::textlayout::TextStyle *text_style_create(const TextStyleConfiguration* configurationPtr) {
+QUEST_API skia::textlayout::TextStyle *questpdf_skia_text_style_create(const TextStyleConfiguration* configurationPtr) {
     const TextStyleConfiguration& configuration = *configurationPtr;
 
     auto textStyle = new skia::textlayout::TextStyle();
@@ -98,7 +98,7 @@ QUEST_API skia::textlayout::TextStyle *text_style_create(const TextStyleConfigur
     return textStyle;
 }
 
-QUEST_API void text_style_delete(skia::textlayout::TextStyle *textStyle) {
+QUEST_API void questpdf_skia_text_style_delete(skia::textlayout::TextStyle *textStyle) {
     delete textStyle;
 }
 

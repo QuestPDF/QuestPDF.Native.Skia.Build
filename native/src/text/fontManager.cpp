@@ -46,15 +46,15 @@ sk_sp<SkFontMgr> font_manager_create_default_internal() {
 
 extern "C" {
 
-QUEST_API SkFontMgr *font_manager_create_local(char* path) {
+QUEST_API SkFontMgr *questpdf_skia_font_manager_create_local(char* path) {
     return SkFontMgr_New_Custom_Directory(path).release();
 }
 
-QUEST_API SkFontMgr *font_manager_create_global() {
+QUEST_API SkFontMgr *questpdf_skia_font_manager_create_global() {
     return font_manager_create_default_internal().release();
 }
 
-QUEST_API SkTypeface *font_manager_create_typeface(SkFontMgr* fontManager, SkData* fontData) {
+QUEST_API SkTypeface *questpdf_skia_font_manager_create_typeface(SkFontMgr* fontManager, SkData* fontData) {
     return fontManager->makeFromData(sk_ref_sp(fontData)).release();
 }
 
