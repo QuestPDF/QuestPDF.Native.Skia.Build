@@ -1,8 +1,5 @@
 #if defined(_WIN32)
-#define QUEST_API __declspec(dllexport)
-#elif defined(__EMSCRIPTEN__)
-#include <emscripten.h>
-#define QUEST_API EMSCRIPTEN_KEEPALIVE __attribute__((visibility("default")))
+    #define QUEST_API __declspec(dllexport)
 #else
-#define QUEST_API
+    #define QUEST_API __attribute__((visibility("default")))
 #endif
