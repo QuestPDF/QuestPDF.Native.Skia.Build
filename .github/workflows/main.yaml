@@ -5,13 +5,16 @@ permissions: {}
 on:
   workflow_dispatch:
 
+env:
+  SKIA_BRANCH: chrome/m149
+
 jobs:
   main:
     name: ${{ matrix.runtime.name }}
     runs-on: ${{ matrix.runtime.runs-on }}
     container: ${{ matrix.runtime.container }}
-    timeout-minutes: 40
-      
+    timeout-minutes: 30
+
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -41,6 +44,7 @@ jobs:
       ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
       MACOSX_DEPLOYMENT_TARGET: "12.0"
       DEBIAN_FRONTEND: noninteractive
+      GIT_SYNC_DEPS_SKIP_EMSDK: 1
 
     steps:
       - uses: actions/checkout@v4
