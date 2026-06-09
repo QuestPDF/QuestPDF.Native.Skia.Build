@@ -65,7 +65,7 @@ jobs:
         run: |
           apk update
           apk upgrade
-          apk add bash wget curl git python3 build-base cmake clang llvm15 icu-libs linux-headers bsd-compat-headers gn fontconfig font-noto tar xz
+          apk add bash wget curl git python3 build-base cmake clang llvm15 lld icu-libs linux-headers bsd-compat-headers gn fontconfig font-noto tar xz
 
 
       - name: Setup Python 3.11
@@ -150,8 +150,13 @@ jobs:
             skia_enable_pdf=true
             skia_compile_modules=false
             skia_enable_ganesh=false
-            skia_lex=false
-            extra_cflags=["-fPIC", "-fno-rtti"]'
+            skia_lex=false'
+
+          if [[ "${{ matrix.runtime.name }}" == win-* ]]; then
+            COMMON_ARGS+=' extra_cflags=["/Gy", "/Gw", "/GR-"]'
+          else
+            COMMON_ARGS+=' extra_cflags=["-fPIC", "-fno-rtti", "-ffunction-sections", "-fdata-sections"]'
+          fi
             
           if [[ "${{ matrix.runtime.name }}" == linux-* ]]; then
             COMMON_ARGS+=' cc="clang" cxx="clang++"'
