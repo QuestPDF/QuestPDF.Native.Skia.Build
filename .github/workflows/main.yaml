@@ -5,41 +5,46 @@ permissions: {}
 on:
   workflow_dispatch:
 
+env:
+  SKIA_BRANCH: chrome/m149
+
 jobs:
   main:
     name: ${{ matrix.runtime.name }}
     runs-on: ${{ matrix.runtime.runs-on }}
     container: ${{ matrix.runtime.container }}
-    timeout-minutes: 40
-      
+    timeout-minutes: 30
+
     strategy:
       fail-fast: false
-      max-parallel: 3
+      max-parallel: 4
       matrix:
         runtime: 
         - name: win-x64
-          runs-on: windows-latest-xlarge
+          runs-on: windows-latest
         - name: win-x86
-          runs-on: windows-latest-xlarge
+          runs-on: windows-latest
         - name: win-arm64
-          runs-on: windows-latest-xlarge-arm64
+          runs-on: windows-11-arm
         - name: linux-x64
-          runs-on: ubuntu-latest-xlarge
+          runs-on: ubuntu-latest
           container: quay.io/pypa/manylinux_2_28_x86_64
         - name: linux-arm64
-          runs-on: ubuntu-latest-xlarge-arm64
+          runs-on: ubuntu-24.04-arm
           container: quay.io/pypa/manylinux_2_28_aarch64
         - name: linux-musl-x64
-          runs-on: ubuntu-latest-xlarge
+          runs-on: ubuntu-latest
           container: alpine:3.17
         - name: osx-x64
-          runs-on: macos-latest-large
+          runs-on: macos-26-intel
         - name: osx-arm64
-          runs-on: macos-latest-xlarge
+          runs-on: macos-latest
 
     env:
-      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true    
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+      MACOSX_DEPLOYMENT_TARGET: "12.0"
       DEBIAN_FRONTEND: noninteractive
+      GIT_SYNC_DEPS_SKIP_EMSDK: 1
 
     steps:
       - uses: actions/checkout@v4
