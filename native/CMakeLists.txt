@@ -7,15 +7,6 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
 project(QuestPdfSkia)
 
 
-# enable IPO to achieve better performance, reduce artifact size
-include(CheckIPOSupported)
-check_ipo_supported(RESULT IPO_IS_SUPPORTED)
-
-if(IPO_IS_SUPPORTED)
-    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
-endif()
-
-
 # include all code source files
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
@@ -31,12 +22,12 @@ set_target_properties(QuestPdfSkia PROPERTIES
     VISIBILITY_INLINES_HIDDEN ON
 )
 
-
-# built with -fno-rtti
+# disable RTTI; compile with per-function/per-data sections
+# so the linker can discard unreferenced code
 if (MSVC)
-    target_compile_options(QuestPdfSkia PRIVATE /GR-)
+    target_compile_options(QuestPdfSkia PRIVATE /GR- /Gy /Gw)
 else()
-    target_compile_options(QuestPdfSkia PRIVATE -fno-rtti)
+    target_compile_options(QuestPdfSkia PRIVATE -fno-rtti -ffunction-sections -fdata-sections)
 endif()
 
 
@@ -79,9 +70,12 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     )
 
     target_link_options(QuestPdfSkia PRIVATE
+        -fuse-ld=lld
         -Wl,-z,defs
         -Wl,--no-undefined
         -Wl,--exclude-libs,ALL
+        -Wl,--gc-sections
+        -Wl,--icf=safe
     )
 
     # reduce output package size
@@ -91,18 +85,9 @@ endif()
 
 # Windows configuration
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    if(CMAKE_GENERATOR_PLATFORM MATCHES "ARM64")
-        set(WIN_ARCH "arm64")
-    elseif(CMAKE_GENERATOR_PLATFORM MATCHES "Win32")
-        set(WIN_ARCH "x86")
-    else()
-        set(WIN_ARCH "x64")
-    endif()
-
     file(GLOB SKIA_LIBRARY "${SKIA_DIR}/out/release/*.lib")
     target_link_libraries(QuestPdfSkia PRIVATE ${SKIA_LIBRARY})
 
-    set(WINDOWS_SDK_PATH "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/${WIN_ARCH}")
-    target_link_libraries(QuestPdfSkia PRIVATE "${WINDOWS_SDK_PATH}/fontsub.lib")
-    target_link_libraries(QuestPdfSkia PRIVATE "${WINDOWS_SDK_PATH}/dwrite.lib")
+    target_link_libraries(QuestPdfSkia PRIVATE dwrite.lib fontsub.lib)
+    target_link_options(QuestPdfSkia PRIVATE /OPT:REF /OPT:ICF)
 endif()
