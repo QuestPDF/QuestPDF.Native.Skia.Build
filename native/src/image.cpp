@@ -51,7 +51,7 @@ QUEST_API SkBitmap *questpdf_skia_image_resize_conditionally(SkImage *image, int
 }
 
 QUEST_API SkImage *questpdf_skia_image_resize_and_compress(SkImage *image, int targetImageWidth, int targetImageHeight, int quality, bool downsample) {
-    auto scaledBitmap = questpdf_skia_image_resize_and_compress(image, targetImageWidth, targetImageHeight);
+    auto scaledBitmap = questpdf_skia_image_resize_conditionally(image, targetImageWidth, targetImageHeight);
 
     if (image->isOpaque()) {
         SkJpegEncoder::Options encodingOptions;
