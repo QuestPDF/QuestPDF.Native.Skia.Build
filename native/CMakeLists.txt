@@ -55,11 +55,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
     target_link_options(QuestPdfSkia PRIVATE
         -Wl,-dead_strip
-        -Wl,-exported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/exported-symbols.txt
-    )
-    
-    set_target_properties(QuestPdfSkia PROPERTIES
-        LINK_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/exported-symbols.txt
+        -Wl,-exported_symbol,_questpdf_skia_*
     )
 
     # reduce output package size
