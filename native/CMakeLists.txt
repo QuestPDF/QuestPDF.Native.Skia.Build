@@ -20,9 +20,16 @@ endif()
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 
-# select between running as application (main.cpp) or producing the library
+# build project as a native shared library
 add_library(QuestPdfSkia SHARED ${SOURCES})
-#add_executable(QuestPdfSkia ${SOURCES})
+
+
+# hide all internal symbols by default
+set_target_properties(QuestPdfSkia PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+    C_VISIBILITY_PRESET hidden
+    VISIBILITY_INLINES_HIDDEN ON
+)
 
 
 # built with -fno-rtti
@@ -45,6 +52,15 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     find_library(COREGRAPHICS_LIBRARY CoreGraphics)
     find_library(CORETEXT_LIBRARY CoreText)
     target_link_libraries(QuestPdfSkia PRIVATE ${SKIA_LIBRARY} ${CORETEXT_LIBRARY} ${COREGRAPHICS_LIBRARY} ${COREFOUNDATION_LIBRARY})
+
+    target_link_options(QuestPdfSkia PRIVATE
+        -Wl,-dead_strip
+        -Wl,-exported_symbols_list,${CMAKE_CURRENT_SOURCE_DIR}/exported-symbols.txt
+    )
+    
+    set_target_properties(QuestPdfSkia PROPERTIES
+        LINK_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/exported-symbols.txt
+    )
 
     # reduce output package size
     add_custom_command(TARGET QuestPdfSkia POST_BUILD COMMAND ${CMAKE_STRIP} -x $<TARGET_FILE:QuestPdfSkia>)
@@ -69,6 +85,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     target_link_options(QuestPdfSkia PRIVATE
         -Wl,-z,defs
         -Wl,--no-undefined
+        -Wl,--exclude-libs,ALL
     )
 
     # reduce output package size
