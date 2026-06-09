@@ -14,7 +14,7 @@ internal sealed class SkData : IDisposable
     
     public static SkData FromFile(string filePath)
     {
-        var instance = API.data_create_from_file(filePath);
+        var instance = API.questpdf_skia_data_create_from_file(filePath);
         return new SkData(instance);
     }
     
@@ -31,7 +31,7 @@ internal sealed class SkData : IDisposable
     {
         fixed (byte* dataPtr = data)
         {
-            var instance = API.data_create_from_binary(dataPtr, data.Length);
+            var instance = API.questpdf_skia_data_create_from_binary(dataPtr, data.Length);
             GC.KeepAlive(data);
             return new SkData(instance);
         }
@@ -39,7 +39,7 @@ internal sealed class SkData : IDisposable
     
     public byte[] ToBytes()
     {
-        API.data_get_bytes(Instance, out var content);
+        API.questpdf_skia_data_get_bytes(Instance, out var content);
         
         var result = new byte[content.length];
         Marshal.Copy(content.bytes, result, 0, content.length);
@@ -60,17 +60,17 @@ internal sealed class SkData : IDisposable
         if (Instance == IntPtr.Zero)
             return;
         
-        API.data_unref(Instance);
+        API.questpdf_skia_data_unref(Instance);
         Instance = IntPtr.Zero;
     }
     
     private static class API
     {
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr data_create_from_file([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaller))] string path);
+        public static extern IntPtr questpdf_skia_data_create_from_file([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaller))] string path);
     
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern unsafe IntPtr data_create_from_binary(byte* arrayPointer, int arrayLength);
+        public static extern unsafe IntPtr questpdf_skia_data_create_from_binary(byte* arrayPointer, int arrayLength);
     
         [StructLayout(LayoutKind.Sequential)]
         public struct GetBytesFromDataResult
@@ -80,9 +80,9 @@ internal sealed class SkData : IDisposable
         }
     
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void data_get_bytes(IntPtr data, out GetBytesFromDataResult result);
+        public static extern void questpdf_skia_data_get_bytes(IntPtr data, out GetBytesFromDataResult result);
     
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void data_unref(IntPtr data);
+        public static extern void questpdf_skia_data_unref(IntPtr data);
     }
 }

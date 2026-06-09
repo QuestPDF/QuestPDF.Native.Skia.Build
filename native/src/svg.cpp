@@ -12,7 +12,7 @@
 
 extern "C" {
 
-QUEST_API SkSVGDOM *svg_create(SkData *data, skresources::ResourceProvider *resourceProvider, SkFontMgr *fontManager) {
+QUEST_API SkSVGDOM *questpdf_skia_svg_create(SkData *data, skresources::ResourceProvider *resourceProvider, SkFontMgr *fontManager) {
     auto svgStream = SkMemoryStream(sk_ref_sp(data));
 
     return SkSVGDOM::Builder()
@@ -23,7 +23,7 @@ QUEST_API SkSVGDOM *svg_create(SkData *data, skresources::ResourceProvider *reso
         .release();
 }
 
-QUEST_API void svg_unref(SkSVGDOM *svg) {
+QUEST_API void questpdf_skia_svg_unref(SkSVGDOM *svg) {
     svg->unref();
 }
 
@@ -47,7 +47,7 @@ struct SkSvgSize {
     SkSvgSizeUnit heightUnit;
 };
 
-QUEST_API void svg_get_size(SkSVGDOM *svg, SkSvgSize *size, SkRect* viewBox) {
+QUEST_API void questpdf_skia_svg_get_size(SkSVGDOM *svg, SkSvgSize *size, SkRect* viewBox) {
     auto convertUnit = [](SkSVGLength::Unit unit) -> SkSvgSizeUnit {
         switch (unit) {
             case SkSVGLength::Unit::kNumber: return SkSvgSizeUnit::kNumber;

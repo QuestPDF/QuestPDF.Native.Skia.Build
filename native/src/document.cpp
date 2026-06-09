@@ -9,19 +9,19 @@
 
 extern "C" {
 
-QUEST_API SkCanvas *document_begin_page(SkDocument *document, float width, float height) {
+QUEST_API SkCanvas *questpdf_skia_document_begin_page(SkDocument *document, float width, float height) {
     return document->beginPage(width, height);
 }
 
-QUEST_API void document_end_page(SkDocument *document) {
+QUEST_API void questpdf_skia_document_end_page(SkDocument *document) {
     document->endPage();
 }
 
-QUEST_API void document_close(SkDocument *document) {
+QUEST_API void questpdf_skia_document_close(SkDocument *document) {
     document->close();
 }
 
-QUEST_API  void document_unref(SkDocument *document) {
+QUEST_API  void questpdf_skia_document_unref(SkDocument *document) {
     document->unref();
 }
 

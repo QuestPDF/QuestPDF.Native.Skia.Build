@@ -6,11 +6,11 @@
 
 extern "C" {
 
-QUEST_API void paragraph_plan_layout(skia::textlayout::Paragraph *paragraph, float availableWidth) {
+QUEST_API void questpdf_skia_paragraph_plan_layout(skia::textlayout::Paragraph *paragraph, float availableWidth) {
     paragraph->layout(availableWidth);
 }
 
-QUEST_API void paragraph_get_size(skia::textlayout::Paragraph *paragraph, float* totalWidth, float* totalHeight) {
+QUEST_API void questpdf_skia_paragraph_get_size(skia::textlayout::Paragraph *paragraph, float* totalWidth, float* totalHeight) {
     *totalWidth = paragraph->getLongestLine();
     *totalHeight = paragraph->getHeight();
 }
@@ -20,7 +20,7 @@ struct LineExtent {
     float bottom;
 };
 
-QUEST_API void paragraph_get_line_extents(skia::textlayout::Paragraph *paragraph, LineExtent **array, int *arrayLength) {
+QUEST_API void questpdf_skia_paragraph_get_line_extents(skia::textlayout::Paragraph *paragraph, LineExtent **array, int *arrayLength) {
     std::vector<skia::textlayout::LineMetrics> lineMetrics;
     paragraph->getLineMetrics(lineMetrics);
 
@@ -34,11 +34,11 @@ QUEST_API void paragraph_get_line_extents(skia::textlayout::Paragraph *paragraph
     }
 }
 
-QUEST_API void paragraph_delete_line_extents(LineExtent *array) {
+QUEST_API void questpdf_skia_paragraph_delete_line_extents(LineExtent *array) {
     delete[] array;
 }
 
-QUEST_API void paragraph_get_unresolved_codepoints(skia::textlayout::Paragraph *paragraph, SkUnichar **outputArray, int *outputArrayLength) {
+QUEST_API void questpdf_skia_paragraph_get_unresolved_codepoints(skia::textlayout::Paragraph *paragraph, SkUnichar **outputArray, int *outputArrayLength) {
     const auto codepoints = paragraph->unresolvedCodepoints();
 
     *outputArrayLength = codepoints.size();
@@ -50,11 +50,11 @@ QUEST_API void paragraph_get_unresolved_codepoints(skia::textlayout::Paragraph *
         (*outputArray)[index++] = codepoint;
 }
 
-QUEST_API void paragraph_delete_unresolved_codepoints(SkUnichar *array) {
+QUEST_API void questpdf_skia_paragraph_delete_unresolved_codepoints(SkUnichar *array) {
     delete[] array;
 }
 
-QUEST_API void paragraph_get_placeholder_positions(skia::textlayout::Paragraph *paragraph, SkRect **outputArray, int *outputArrayLength) {
+QUEST_API void questpdf_skia_paragraph_get_placeholder_positions(skia::textlayout::Paragraph *paragraph, SkRect **outputArray, int *outputArrayLength) {
     const auto placeholders = paragraph->getRectsForPlaceholders();
 
     *outputArrayLength = placeholders.size();
@@ -64,11 +64,11 @@ QUEST_API void paragraph_get_placeholder_positions(skia::textlayout::Paragraph *
         (*outputArray)[i] = placeholders[i].rect;
 }
 
-QUEST_API void paragraph_delete_positions(SkRect *array) {
+QUEST_API void questpdf_skia_paragraph_delete_positions(SkRect *array) {
     delete[] array;
 }
 
-QUEST_API void paragraph_get_text_range_positions(skia::textlayout::Paragraph *paragraph, int rangeStart, int rangeEnd, SkRect **outputArray, int *outputArrayLength) {
+QUEST_API void questpdf_skia_paragraph_get_text_range_positions(skia::textlayout::Paragraph *paragraph, int rangeStart, int rangeEnd, SkRect **outputArray, int *outputArrayLength) {
     const auto placeholders = paragraph->getRectsForRange(rangeStart, rangeEnd, skia::textlayout::RectHeightStyle::kTight, skia::textlayout::RectWidthStyle::kTight);
 
     *outputArrayLength = placeholders.size();
@@ -78,7 +78,7 @@ QUEST_API void paragraph_get_text_range_positions(skia::textlayout::Paragraph *p
         (*outputArray)[i] = placeholders[i].rect;
 }
 
-QUEST_API void paragraph_delete(skia::textlayout::Paragraph *paragraph) {
+QUEST_API void questpdf_skia_paragraph_delete(skia::textlayout::Paragraph *paragraph) {
     delete paragraph;
 }
 

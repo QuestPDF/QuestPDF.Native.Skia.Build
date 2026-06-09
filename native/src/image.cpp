@@ -19,16 +19,16 @@
 
 extern "C" {
 
-QUEST_API SkImage *image_create_from_data(SkData *data) {
+QUEST_API SkImage *questpdf_skia_image_create_from_data(SkData *data) {
     auto image = SkImages::DeferredFromEncodedData(sk_ref_sp(data));
     return image.release();
 }
 
-QUEST_API void image_unref(SkImage *image) {
+QUEST_API void questpdf_skia_image_unref(SkImage *image) {
     image->unref();
 }
 
-QUEST_API SkBitmap *image_resize_conditionally(SkImage *image, int targetImageWidth, int targetImageHeight) {
+QUEST_API SkBitmap *questpdf_skia_image_resize_conditionally(SkImage *image, int targetImageWidth, int targetImageHeight) {
     auto shouldScale = targetImageWidth < image->width() && targetImageHeight < image->height();
 
     if (shouldScale) {
@@ -50,7 +50,7 @@ QUEST_API SkBitmap *image_resize_conditionally(SkImage *image, int targetImageWi
     }
 }
 
-QUEST_API SkImage *image_resize_and_compress(SkImage *image, int targetImageWidth, int targetImageHeight, int quality, bool downsample) {
+QUEST_API SkImage *questpdf_skia_image_resize_and_compress(SkImage *image, int targetImageWidth, int targetImageHeight, int quality, bool downsample) {
     auto scaledBitmap = image_resize_conditionally(image, targetImageWidth, targetImageHeight);
 
     if (image->isOpaque()) {
@@ -80,7 +80,7 @@ struct SkImageDetails {
     int encodedDataSize;
 };
 
-QUEST_API void image_get_details(SkImage *image, SkImageDetails* out_details) {
+QUEST_API void questpdf_skia_image_get_details(SkImage *image, SkImageDetails* out_details) {
     SkImageDetails& details = *out_details;
 
     details.width = image->width();
@@ -88,11 +88,11 @@ QUEST_API void image_get_details(SkImage *image, SkImageDetails* out_details) {
     details.encodedDataSize = image->refEncodedData()->size();
 }
 
-QUEST_API const SkData *image_get_encoded_data(SkImage *image) {
+QUEST_API const SkData *questpdf_skia_image_get_encoded_data(SkImage *image) {
     return image->refEncodedData().release();
 }
 
-QUEST_API SkImage *image_generate_placeholder(int imageWidth, int imageHeight, SkColor firstColor, SkColor secondColor) {
+QUEST_API SkImage *questpdf_skia_image_generate_placeholder(int imageWidth, int imageHeight, SkColor firstColor, SkColor secondColor) {
     // generate output
     SkBitmap bitmap;
     bitmap.allocN32Pixels(imageWidth, imageHeight);

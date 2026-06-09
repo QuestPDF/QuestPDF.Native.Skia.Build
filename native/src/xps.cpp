@@ -13,7 +13,7 @@
 
 extern "C" {
 
-QUEST_API SkDocument *xps_document_create(SkWStream *stream, SkScalar dpi) {
+QUEST_API SkDocument *questpdf_skia_xps_document_create(SkWStream *stream, SkScalar dpi) {
     IXpsOMObjectFactory *factory = nullptr;
 
     auto hr = CoCreateInstance(CLSID_XpsOMObjectFactory, nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&factory));

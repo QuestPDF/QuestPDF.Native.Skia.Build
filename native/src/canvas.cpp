@@ -25,38 +25,38 @@
 
 extern "C" {
 
-QUEST_API SkCanvas *canvas_create_from_bitmap(SkBitmap *bitmap) {
+QUEST_API SkCanvas *questpdf_skia_canvas_create_from_bitmap(SkBitmap *bitmap) {
     auto canvas = new SkCanvas(*bitmap);
     return canvas;
 }
 
-QUEST_API void canvas_delete(SkCanvas *canvas) {
+QUEST_API void questpdf_skia_canvas_delete(SkCanvas *canvas) {
     delete canvas;
 }
 
-QUEST_API void canvas_save(SkCanvas *canvas) {
+QUEST_API void questpdf_skia_canvas_save(SkCanvas *canvas) {
     canvas->save();
 }
 
-QUEST_API void canvas_restore(SkCanvas *canvas) {
+QUEST_API void questpdf_skia_canvas_restore(SkCanvas *canvas) {
     canvas->restore();
 }
 
-QUEST_API void canvas_translate(SkCanvas *canvas, float x, float y) {
+QUEST_API void questpdf_skia_canvas_translate(SkCanvas *canvas, float x, float y) {
     canvas->translate(x, y);
 }
 
-QUEST_API void canvas_rotate(SkCanvas *canvas, float angle) {
+QUEST_API void questpdf_skia_canvas_rotate(SkCanvas *canvas, float angle) {
     canvas->rotate(angle);
 }
 
-QUEST_API void canvas_scale(SkCanvas *canvas, float factorX, float factorY) {
+QUEST_API void questpdf_skia_canvas_scale(SkCanvas *canvas, float factorX, float factorY) {
     canvas->scale(factorX, factorY);
 }
 
 const auto delimiter = "::questpdf_delimiter::";
 
-QUEST_API void canvas_annotate_url(SkCanvas *canvas, float width, float height, char *url, char *description) {
+QUEST_API void questpdf_skia_canvas_annotate_url(SkCanvas *canvas, float width, float height, char *url, char *description) {
     auto input = SkString();
     input.append(url);
 
@@ -70,13 +70,13 @@ QUEST_API void canvas_annotate_url(SkCanvas *canvas, float width, float height, 
     data->unref();
 }
 
-QUEST_API void canvas_annotate_destination(SkCanvas *canvas, char *destinationName) {
+QUEST_API void questpdf_skia_canvas_annotate_destination(SkCanvas *canvas, char *destinationName) {
     auto data = SkData::MakeWithCString(destinationName).release();
     SkAnnotateNamedDestination(canvas, SkPoint(), data);
     data->unref();
 }
 
-QUEST_API void canvas_annotate_destination_link(SkCanvas *canvas, float width, float height, char *destinationName, char *description) {
+QUEST_API void questpdf_skia_canvas_annotate_destination_link(SkCanvas *canvas, float width, float height, char *destinationName, char *description) {
     auto input = SkString();
     input.append(destinationName);
 
@@ -90,11 +90,11 @@ QUEST_API void canvas_annotate_destination_link(SkCanvas *canvas, float width, f
     data->unref();
 }
 
-QUEST_API void canvas_draw_line(SkCanvas *canvas, const SkPoint* start, const SkPoint* end, SkPaint* paint) {
+QUEST_API void questpdf_skia_canvas_draw_line(SkCanvas *canvas, const SkPoint* start, const SkPoint* end, SkPaint* paint) {
     canvas->drawLine(*start, *end, *paint);
 }
 
-QUEST_API void canvas_draw_rectangle(SkCanvas *canvas, const SkRect* rect, SkPaint* paint) {
+QUEST_API void questpdf_skia_canvas_draw_rectangle(SkCanvas *canvas, const SkRect* rect, SkPaint* paint) {
     canvas->drawRect(*rect, *paint);
 }
 
@@ -258,7 +258,7 @@ SkPath createRoundedRectPath(const SKRoundedRect &roundedRect) {
     return pathBuilder.detach();
 }
 
-QUEST_API void canvas_draw_complex_border(SkCanvas *canvas, const SKRoundedRect* innerRect, const SKRoundedRect* outerRect, SkPaint* paint) {
+QUEST_API void questpdf_skia_canvas_draw_complex_border(SkCanvas *canvas, const SKRoundedRect* innerRect, const SKRoundedRect* outerRect, SkPaint* paint) {
     const auto innerPath = createRoundedRectPath(*innerRect);
     const auto outerPath = createRoundedRectPath(*outerRect);
 
@@ -278,7 +278,7 @@ struct SKBoxShadow {
     SkColor color;
 };
 
-QUEST_API void canvas_draw_shadow(SkCanvas *canvas, const SKRoundedRect* shadowRect, const SKBoxShadow* shadow) {
+QUEST_API void questpdf_skia_canvas_draw_shadow(SkCanvas *canvas, const SKRoundedRect* shadowRect, const SKBoxShadow* shadow) {
     if (shadow->color == 0)
         return;
 
@@ -298,20 +298,20 @@ QUEST_API void canvas_draw_shadow(SkCanvas *canvas, const SKRoundedRect* shadowR
     canvas->restore();
 }
 
-QUEST_API void canvas_draw_image(SkCanvas *canvas, SkImage *image, float width, float height) {
+QUEST_API void questpdf_skia_canvas_draw_image(SkCanvas *canvas, SkImage *image, float width, float height) {
     constexpr SkSamplingOptions samplingOptions(SkFilterMode::kLinear, SkMipmapMode::kLinear);
     canvas->drawImageRect(image, SkRect::MakeWH(width, height), samplingOptions);
 }
 
-QUEST_API void canvas_draw_picture(SkCanvas *canvas, SkPicture *picture) {
+QUEST_API void questpdf_skia_canvas_draw_picture(SkCanvas *canvas, SkPicture *picture) {
     canvas->drawPicture(picture);
 }
 
-QUEST_API void canvas_draw_paragraph(SkCanvas *canvas, skia::textlayout::Paragraph *paragraph, int lineFrom, int lineTo) {
+QUEST_API void questpdf_skia_canvas_draw_paragraph(SkCanvas *canvas, skia::textlayout::Paragraph *paragraph, int lineFrom, int lineTo) {
     paragraph->paintLines(canvas, lineFrom, lineTo);
 }
 
-QUEST_API void canvas_draw_svg_path(SkCanvas *canvas, char *svg, SkColor color) {
+QUEST_API void questpdf_skia_canvas_draw_svg_path(SkCanvas *canvas, char *svg, SkColor color) {
     SkPath path;
     SkParsePath::FromSVGString(svg, &path);
 
@@ -321,12 +321,12 @@ QUEST_API void canvas_draw_svg_path(SkCanvas *canvas, char *svg, SkColor color) 
     canvas->drawPath(path, paint);
 }
 
-QUEST_API void canvas_draw_svg(SkCanvas *canvas, SkSVGDOM *svg, float width, float height) {
+QUEST_API void questpdf_skia_canvas_draw_svg(SkCanvas *canvas, SkSVGDOM *svg, float width, float height) {
     svg->setContainerSize(SkSize::Make(width, height));
     svg->render(canvas);
 }
 
-QUEST_API void canvas_draw_overflow_area(SkCanvas *canvas, const SkRect* position) {
+QUEST_API void questpdf_skia_canvas_draw_overflow_area(SkCanvas *canvas, const SkRect* position) {
     // configuration
     const float stripeScale = 6;
     const float stripeThickness = 1.5;
@@ -356,7 +356,7 @@ QUEST_API void canvas_draw_overflow_area(SkCanvas *canvas, const SkRect* positio
     canvas->drawRect(targetArea, paint);
 }
 
-QUEST_API void canvas_clip_overflow_area(SkCanvas *canvas, const SkRect* availableSpace, const SkRect* requiredSpace) {
+QUEST_API void questpdf_skia_canvas_clip_overflow_area(SkCanvas *canvas, const SkRect* availableSpace, const SkRect* requiredSpace) {
     auto removeArea = SkRect::MakeWH(
             std::min(availableSpace->right(), requiredSpace->right()),
             std::min(availableSpace->bottom(), requiredSpace->bottom()));
@@ -368,11 +368,11 @@ QUEST_API void canvas_clip_overflow_area(SkCanvas *canvas, const SkRect* availab
     canvas->clipPath(pathBuilder.detach());
 }
 
-QUEST_API void canvas_clip_rectangle(SkCanvas *canvas, const SkRect* clipArea) {
+QUEST_API void questpdf_skia_canvas_clip_rectangle(SkCanvas *canvas, const SkRect* clipArea) {
     canvas->clipRect(*clipArea, true);
 }
 
-QUEST_API void canvas_clip_rounded_rectangle(SkCanvas *canvas, const SKRoundedRect* rect) {
+QUEST_API void questpdf_skia_canvas_clip_rounded_rectangle(SkCanvas *canvas, const SKRoundedRect* rect) {
     const auto path = createRoundedRectPath(*rect);
     canvas->clipPath(path, true);
 }
@@ -391,7 +391,7 @@ struct SkCanvasMatrix {
     float Perspective3;
 };
 
-QUEST_API void canvas_get_matrix9(SkCanvas *canvas, SkCanvasMatrix* out_matrix) {
+QUEST_API void questpdf_skia_canvas_get_matrix9(SkCanvas *canvas, SkCanvasMatrix* out_matrix) {
     SkScalar array[9];
     canvas->getLocalToDeviceAs3x3().get9(array);
 
@@ -409,7 +409,7 @@ QUEST_API void canvas_get_matrix9(SkCanvas *canvas, SkCanvasMatrix* out_matrix) 
     matrix.Perspective3 = array[8];
 }
 
-QUEST_API void canvas_set_matrix9(SkCanvas *canvas, const SkCanvasMatrix* matrixPtr) {
+QUEST_API void questpdf_skia_canvas_set_matrix9(SkCanvas *canvas, const SkCanvasMatrix* matrixPtr) {
     const SkCanvasMatrix& matrix = *matrixPtr;
     SkScalar array[9];
 
@@ -431,7 +431,7 @@ QUEST_API void canvas_set_matrix9(SkCanvas *canvas, const SkCanvasMatrix* matrix
     canvas->setMatrix(SkM44(skMatrix));
 }
 
-QUEST_API void canvas_set_semantic_node_id(SkCanvas* canvas, int nodeId) {
+QUEST_API void questpdf_skia_canvas_set_semantic_node_id(SkCanvas* canvas, int nodeId) {
     SkPDF::SetNodeId(canvas, nodeId);
 }
 

@@ -9,21 +9,21 @@
 
 extern "C" {
 
-    QUEST_API SkPaint *paint_create() {
+    QUEST_API SkPaint *questpdf_skia_paint_create() {
         const auto paint = new SkPaint();
         paint->setAntiAlias(true);
         return paint;
     }
 
-    QUEST_API void paint_delete(const SkPaint* paint) {
+    QUEST_API void questpdf_skia_paint_delete(const SkPaint* paint) {
         delete paint;
     }
 
-    QUEST_API void paint_set_solid_color(SkPaint* paint, SkColor color) {
+    QUEST_API void questpdf_skia_paint_set_solid_color(SkPaint* paint, SkColor color) {
         paint->setColor(color);
     }
 
-    QUEST_API void paint_set_linear_gradient(SkPaint* paint, const SkPoint* start, const SkPoint* end, int colorsLength, SkColor* colors) {
+    QUEST_API void questpdf_skia_paint_set_linear_gradient(SkPaint* paint, const SkPoint* start, const SkPoint* end, int colorsLength, SkColor* colors) {
         // SkGradient only accepts SkColor4f
         std::vector<SkColor4f> colors4f(colorsLength);
 
@@ -38,12 +38,12 @@ extern "C" {
         paint->setShader(shader);
     }
 
-    QUEST_API void paint_set_stroke(SkPaint* paint, const float thickness) {
+    QUEST_API void questpdf_skia_paint_set_stroke(SkPaint* paint, const float thickness) {
         paint->setStroke(true);
         paint->setStrokeWidth(thickness);
     }
 
-    QUEST_API void paint_set_dashed_path_effect(SkPaint* paint, const int length, const SkScalar* intervals) {
+    QUEST_API void questpdf_skia_paint_set_dashed_path_effect(SkPaint* paint, const int length, const SkScalar* intervals) {
         const auto intervalsSpan = SkSpan(intervals, length);
         const auto effect = SkDashPathEffect::Make(intervalsSpan, 0);
         paint->setPathEffect(effect);

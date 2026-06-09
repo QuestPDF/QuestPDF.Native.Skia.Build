@@ -8,11 +8,11 @@
 
 extern "C" {
 
-QUEST_API SkData *data_create_from_file(const char *path) {
+QUEST_API SkData *questpdf_skia_data_create_from_file(const char *path) {
     return SkData::MakeFromFileName(path).release();
 }
 
-QUEST_API SkData *data_create_from_binary(const uint8_t *data, int dataLength) {
+QUEST_API SkData *questpdf_skia_data_create_from_binary(const uint8_t *data, int dataLength) {
     return SkData::MakeWithCopy(data, dataLength).release();
 }
 
@@ -21,13 +21,13 @@ struct GetBytesFromDataResult {
     const uint8_t *bytes;
 };
 
-QUEST_API void data_get_bytes(SkData *data, GetBytesFromDataResult* out_result) {
+QUEST_API void questpdf_skia_data_get_bytes(SkData *data, GetBytesFromDataResult* out_result) {
     GetBytesFromDataResult& result = *out_result;
     result.length = data->size();
     result.bytes = data->bytes();
 }
 
-QUEST_API void data_unref(SkData *data) {
+QUEST_API void questpdf_skia_data_unref(SkData *data) {
     data->unref();
 }
 
