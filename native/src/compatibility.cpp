@@ -4,10 +4,10 @@
 extern "C" {
 
 QUEST_API int questpdf_get_compatibility_version() {
-    return 15;
+    return 16;
 }
 
-QUEST_API int questpdf_skia_check_compatibility_by_calculating_sum(int a, int b) {
+QUEST_API int questpdf_check_compatibility_by_calculating_sum(int a, int b) {
     return a + b;
 }
 

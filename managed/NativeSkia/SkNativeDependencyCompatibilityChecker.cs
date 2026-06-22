@@ -5,7 +5,7 @@ namespace QuestPDF.Skia;
 
 internal static class SkNativeDependencyCompatibilityChecker
 {
-    const int ExpectedNativeLibraryVersion = 15;
+    const int ExpectedNativeLibraryVersion = 16;
     
     private static bool IsCompatibilityChecked = false;
         
@@ -76,7 +76,7 @@ internal static class SkNativeDependencyCompatibilityChecker
     {
         try
         {
-            return API.questpdf_skia_get_questpdf_version() == ExpectedNativeLibraryVersion;
+            return API.questpdf_get_compatibility_version() == ExpectedNativeLibraryVersion;
         }
         catch
         {
@@ -94,7 +94,7 @@ internal static class SkNativeDependencyCompatibilityChecker
             var b = random.Next();
         
             var expected = a + b;
-            var returned = API.questpdf_skia_check_compatibility_by_calculating_sum(a, b);
+            var returned = API.questpdf_check_compatibility_by_calculating_sum(a, b);
         
             if (expected != returned)
                 throw new Exception();
@@ -110,9 +110,9 @@ internal static class SkNativeDependencyCompatibilityChecker
     private static class API
     {
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int questpdf_skia_get_questpdf_version();
+        public static extern int questpdf_get_compatibility_version();
         
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int questpdf_skia_check_compatibility_by_calculating_sum(int a, int b);
+        public static extern int questpdf_check_compatibility_by_calculating_sum(int a, int b);
     }
 }
