@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 env:
-  SKIA_BRANCH: chrome/m149
+  SKIA_BRANCH: chrome/m150
 
 jobs:
   main:
