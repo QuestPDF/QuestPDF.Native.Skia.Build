@@ -76,7 +76,7 @@ internal static class SkNativeDependencyCompatibilityChecker
     {
         try
         {
-            return API.questpdf_get_compatibility_version() == ExpectedNativeLibraryVersion;
+            return API.questpdf_skia_get_compatibility_version() == ExpectedNativeLibraryVersion;
         }
         catch
         {
@@ -88,17 +88,7 @@ internal static class SkNativeDependencyCompatibilityChecker
     {
         try
         {
-            var random = new Random();
-            
-            var a = random.Next();
-            var b = random.Next();
-        
-            var expected = a + b;
-            var returned = API.questpdf_check_compatibility_by_calculating_sum(a, b);
-        
-            if (expected != returned)
-                throw new Exception();
-
+            API.questpdf_skia_get_compatibility_version();
             return null;
         }
         catch (Exception exception)
@@ -110,9 +100,6 @@ internal static class SkNativeDependencyCompatibilityChecker
     private static class API
     {
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int questpdf_get_compatibility_version();
-        
-        [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int questpdf_check_compatibility_by_calculating_sum(int a, int b);
+        public static extern int questpdf_skia_get_compatibility_version();
     }
 }
