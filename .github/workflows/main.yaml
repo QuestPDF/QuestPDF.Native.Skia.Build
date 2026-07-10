@@ -109,8 +109,8 @@ jobs:
             is_official_build=true
             is_component_build=false
             is_debug=false
-            skia_enable_optimize_size=true
-            skia_enable_tools=true
+            skia_enable_optimize_size=false
+            skia_enable_tools=false
             skia_use_system_expat=false
             skia_use_system_icu=false
             skia_use_system_harfbuzz=false
