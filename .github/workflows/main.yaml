@@ -223,7 +223,7 @@ jobs:
           path: output
             
 
-      - name: Setup .NET 8.0 SDK (Windows)
+      - name: Setup .NET 10.0 SDK (Windows)
         if: startsWith(matrix.runtime.name, 'win-')
         shell: pwsh
         run: |
@@ -233,19 +233,19 @@ jobs:
           $installDir = "$env:RUNNER_TEMP\dotnet-$arch"
       
           Invoke-WebRequest -Uri https://dot.net/v1/dotnet-install.ps1 -OutFile $script
-          & $script -Channel 8.0 -Architecture $arch -InstallDir $installDir
+          & $script -Channel 10.0 -Architecture $arch -InstallDir $installDir
       
           Add-Content -Path $env:GITHUB_PATH -Value $installDir
           Add-Content -Path $env:GITHUB_ENV -Value "DOTNET_ROOT=$installDir"
 
       
-      - name: Setup .NET 8.0 SDK (Unix)
+      - name: Setup .NET 10.0 SDK (Unix)
         if: startsWith(matrix.runtime.name, 'win-') == false
         shell: bash
         run: |
           curl -sSL https://dot.net/v1/dotnet-install.sh -o /tmp/dotnet-install.sh
           INSTALL_DIR="$HOME/.dotnet"
-          bash /tmp/dotnet-install.sh --channel 8.0 --install-dir "$INSTALL_DIR"
+          bash /tmp/dotnet-install.sh --channel 10.0 --install-dir "$INSTALL_DIR"
           echo "$INSTALL_DIR" >> $GITHUB_PATH
           echo "DOTNET_ROOT=$INSTALL_DIR" >> $GITHUB_ENV
 
@@ -253,11 +253,11 @@ jobs:
       - name: Test build artifacts
         shell: bash
         run: |
-          TEST_EXECUTION_PATH='managed/NativeSkia.Tests/bin/Debug/net8.0/${{ matrix.runtime.name }}'
+          TEST_EXECUTION_PATH='managed/NativeSkia.Tests/bin/Debug/net10.0/${{ matrix.runtime.name }}'
           mkdir -p "$TEST_EXECUTION_PATH"
           cp -R output/* "$TEST_EXECUTION_PATH"
           
-          dotnet test managed --framework net8.0 --runtime ${{ matrix.runtime.name }} || TEST_RESULT=$?
+          dotnet test managed --framework net10.0 --runtime ${{ matrix.runtime.name }} || TEST_RESULT=$?
           mkdir -p testOutput/${{ matrix.runtime.name }} 
           
           ls -lR $TEST_EXECUTION_PATH
