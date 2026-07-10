@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="NativeSkia.Tests/NativeSkia.Tests.csproj" />
+  <Project Path="NativeSkia/NativeSkia.csproj" />
+</Solution>
