@@ -153,7 +153,7 @@ jobs:
             skia_lex=false'
 
           if [[ "${{ matrix.runtime.name }}" == win-* ]]; then
-            COMMON_ARGS+=' extra_cflags=["/Gy", "/Gw", "/GR-"]'
+            COMMON_ARGS+=' clang_win="C:\Program Files\LLVM" extra_cflags=["/Gy", "/Gw", "/GR-"]'
           else
             COMMON_ARGS+=' extra_cflags=["-fPIC", "-fno-rtti", "-ffunction-sections", "-fdata-sections"]'
           fi
@@ -191,6 +191,10 @@ jobs:
             -DCMAKE_CXX_COMPILER=clang++ 
             -DCMAKE_C_COMPILER=clang 
             -DCMAKE_BUILD_TYPE=Release"
+
+          if [[ "${{ matrix.runtime.name }}" == win-* ]]; then
+            CMAKE_ARGS+=' -T ClangCL'
+          fi
             
           if [ "${{ matrix.runtime.name }}" = "win-x86" ]; then
             CMAKE_ARGS+=" -A Win32"
