@@ -94,16 +94,23 @@ jobs:
           export PATH="${PWD}/depot_tools:${PATH}"
 
           
-      - name: Build Skia
+      - name: Download Skia and Fetch Dependencies
         shell: bash
         run: |
           git config --system core.longpaths true
           
           git clone https://github.com/QuestPDF/QuestPDF.Native.Skia --branch "$SKIA_BRANCH" --single-branch --depth 1 skia
+          
           cd skia
           
           bin/fetch-ninja
           python3 tools/git-sync-deps
+
+
+      - name: Build Skia
+        shell: bash
+        working-directory: skia
+        run: |
           COMMON_ARGS='
             is_official_build=true
             is_component_build=false
