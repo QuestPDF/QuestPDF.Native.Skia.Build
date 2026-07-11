@@ -17,7 +17,6 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 4
       matrix:
         runtime: 
         - name: win-x64
