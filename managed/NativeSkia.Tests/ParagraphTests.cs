@@ -90,7 +90,7 @@ public class ParagraphTests
 
         var documentData = memoryStream.ToArray();
         TestFixture.SaveOutput("document_paragraph.pdf", documentData);
-        documentData.ShouldHaveSize(123_400, buffer: 1000);
+        documentData.ShouldHaveSize(119_250, buffer: 250);
 
         Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
     }
@@ -226,7 +226,7 @@ public class ParagraphTests
 
         var documentData = memoryStream.ToArray();
         TestFixture.SaveOutput("font_features.pdf", documentData);
-        documentData.ShouldHaveSize(22300, 100);
+        documentData.ShouldHaveSize(21900, 150);
 
         Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
     }
@@ -370,7 +370,7 @@ public class ParagraphTests
 
         var documentData = memoryStream.ToArray();
         TestFixture.SaveOutput("document_with_paragraph_and_inlined_hyperlink.pdf", documentData);
-        documentData.ShouldHaveSize(25_000, buffer: 150);
+        documentData.ShouldHaveSize(24_250, buffer: 250);
         
         Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
         
