@@ -156,7 +156,8 @@ jobs:
             skia_enable_pdf=true
             skia_compile_modules=false
             skia_enable_ganesh=false
-            skia_lex=false'
+            skia_lex=false
+            skia_use_partition_alloc=false'
 
           if [[ "${{ matrix.runtime.name }}" == win-* ]]; then
             COMMON_ARGS+=' clang_win="C:\Program Files\LLVM" extra_cflags=["/Gy", "/Gw", "/GR-"]'
