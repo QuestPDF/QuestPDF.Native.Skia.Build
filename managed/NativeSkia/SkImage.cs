@@ -21,6 +21,8 @@ internal sealed class SkImage : IDisposable
         Width = details.Width;
         Height = details.Height;
         EncodedDataSize = details.EncodedDataSize;
+        
+        GC.AddMemoryPressure(EncodedDataSize);
     }
 
     public static SkImage FromData(SkData data)
@@ -68,6 +70,7 @@ internal sealed class SkImage : IDisposable
         
         API.questpdf_skia_image_unref(Instance);
         Instance = IntPtr.Zero;
+        GC.RemoveMemoryPressure(EncodedDataSize);
     }
     
     private static class API
