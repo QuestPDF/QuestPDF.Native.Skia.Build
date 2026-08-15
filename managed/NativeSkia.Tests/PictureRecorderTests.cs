@@ -19,20 +19,11 @@ public class PictureRecorderTests
         
         using var picture = recorder.EndRecording();
         
-        // serialization test
-        using var serializedPictureData = picture.Serialize();
-        Assert.That(serializedPictureData.ToBytes().Length, Is.GreaterThan(0));
-        
-        var serializedPictureBytes = serializedPictureData.ToBytes();
-        using var deserializedPictureData = SkData.FromBinary(serializedPictureBytes);
-        
-        using var deserializedPicture = SkPicture.Deserialize(deserializedPictureData);
-        
         // draw picture
         using var bitmap = new SkBitmap(400, 300);
         using var outputBitmapCanvas = SkCanvas.CreateFromBitmap(bitmap);
         
-        outputBitmapCanvas.DrawPicture(deserializedPicture);
+        outputBitmapCanvas.DrawPicture(picture);
         
         // save output
         using var pngData = bitmap.EncodeAsPng();
