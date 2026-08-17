@@ -4,9 +4,15 @@ permissions: {}
 
 on:
   workflow_dispatch:
+    inputs:
+      skia_branch:
+        description: 'QuestPDF.Native.Skia branch to build'
+        required: true
+        default: 'chrome/m152'
+        type: string
 
 env:
-  SKIA_BRANCH: chrome/m152
+  SKIA_BRANCH: ${{ inputs.skia_branch }}
 
 jobs:
   main:
