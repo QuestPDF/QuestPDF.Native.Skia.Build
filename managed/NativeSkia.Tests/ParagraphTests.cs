@@ -462,9 +462,9 @@ public class ParagraphTests
         canvas.Translate(25, 25);
         canvas.DrawParagraph(paragraph);
 
-        using var pngData = bitmap.EncodeAsJpeg(95);
-        TestFixture.SaveOutput("paragraph_hyphenation.jpg", pngData);
-        pngData.ShouldHaveSize(5700, buffer: 100);
+        using var jpgData = bitmap.EncodeAsJpeg(95);
+        TestFixture.SaveOutput("paragraph_hyphenation.jpg", jpgData);
+        jpgData.ShouldHaveSize(5800, buffer: 100);
 
         Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
     }
