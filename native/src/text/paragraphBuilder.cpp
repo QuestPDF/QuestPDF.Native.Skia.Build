@@ -23,6 +23,7 @@ QUEST_API skia::textlayout::ParagraphBuilder *questpdf_skia_paragraph_builder_cr
     paragraphStyle.setReplaceTabCharacters(true);
     paragraphStyle.turnHintingOff();
     paragraphStyle.setApplyRoundingHack(false);
+    paragraphStyle.setRenderSoftHyphens(true);
 
     if (configuration.maxLinesVisible > 0) {
         paragraphStyle.setEllipsis(SkString(configuration.lineClampEllipsis));

@@ -414,6 +414,61 @@ public class ParagraphTests
         }
     }
 
+    [Test]
+    public void Hyphenation()
+    {
+        using var typefaceProvider = CreateTypefaceProvider();
+        using var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);
+
+        var paragraphStyleConfiguration = new ParagraphStyleConfiguration
+        {
+            Alignment = ParagraphStyleConfiguration.TextAlign.Left,
+            Direction = ParagraphStyleConfiguration.TextDirection.Ltr,
+            MaxLinesVisible = 40
+        };
+
+        using var paragraphBuilder = SkParagraphBuilder.Create(paragraphStyleConfiguration, SkUnicode.Global, fontCollection);
+
+        using var textStyle = new SkTextStyle(new TextStyleConfiguration
+        {
+            FontSize = 32,
+            FontWeight = TextStyleConfiguration.FontWeights.Normal,
+            FontFamilies = GetFontFamilyPointers("Noto Sans"),
+            FontFeatures = GetFontFeatures(),
+
+            BackgroundColor = 0x22000000,
+            ForegroundColor = 0xFF000000,
+ 
+            LineHeight = 1.25f,
+            WordSpacing = 0,
+            LetterSpacing = 0
+        });
+
+        // the German word "Silbentrennung" (hyphenation) with soft hyphens (U+00AD) marking break opportunities
+        var softHyphen = char.ConvertFromUtf32(0x00AD);
+        paragraphBuilder.AddText($"Silben{softHyphen}tren{softHyphen}nung", textStyle);
+
+        using var paragraph = paragraphBuilder.CreateParagraph();
+
+        // the word does not fit in the available width and wraps at a soft hyphen: "Silbentren-" / "nung"
+        paragraph.PlanLayout(150);
+        Assert.That(paragraph.GetLineExtents(), Has.Length.EqualTo(2));
+
+        // draw paragraph
+        using var bitmap = new SkBitmap(200, 125);
+        using var canvas = SkCanvas.CreateFromBitmap(bitmap);
+
+        canvas.DrawFilledRectangle(new SkRect(0, 0, 200, 125), 0xFFFFFFFF);
+        canvas.Translate(25, 25);
+        canvas.DrawParagraph(paragraph);
+
+        using var jpgData = bitmap.EncodeAsJpeg(95);
+        TestFixture.SaveOutput("paragraph_hyphenation.jpg", jpgData);
+        jpgData.ShouldHaveSize(5800, buffer: 100);
+
+        Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
+    }
+
     static SkTypefaceProvider CreateTypefaceProvider()
     {
         var typefaceProvider = new SkTypefaceProvider();
