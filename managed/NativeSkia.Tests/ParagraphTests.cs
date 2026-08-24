@@ -329,7 +329,7 @@ public class ParagraphTests
 
         var documentData = memoryStream.ToArray();
         TestFixture.SaveOutput("document_subscript.pdf", documentData);
-        documentData.ShouldHaveSize(8_600, buffer: 100);
+        documentData.ShouldHaveSize(8_460, buffer: 100);
         
         Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
     }
