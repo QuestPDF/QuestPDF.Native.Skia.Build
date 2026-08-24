@@ -15,6 +15,7 @@ struct TextStyleConfiguration {
     SkScalar fontSize;
     SkFontStyle::Weight fontWeight;
     bool isItalic;
+    bool breakAnywhere;
 
     char* fontFamilies[FONT_FAMILIES_LENGTH];
     TextStyleFontFeature fontFeatures[FONT_FAMILIES_LENGTH];
@@ -85,6 +86,7 @@ QUEST_API skia::textlayout::TextStyle *questpdf_skia_text_style_create(const Tex
     textStyle->setLetterSpacing(configuration.letterSpacing);
     textStyle->setWordSpacing(configuration.wordSpacing);
     textStyle->setBaselineShift(configuration.baselineOffset);
+    textStyle->setBreakAnywhere(configuration.breakAnywhere);
 
     textStyle->setFontHinting(SkFontHinting::kNone);
 

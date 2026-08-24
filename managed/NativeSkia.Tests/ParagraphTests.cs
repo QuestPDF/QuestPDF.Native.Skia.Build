@@ -469,6 +469,60 @@ public class ParagraphTests
         Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
     }
 
+    [Test]
+    public void BreakAnywhere()
+    {
+        using var typefaceProvider = CreateTypefaceProvider();
+        using var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);
+
+        var paragraphStyleConfiguration = new ParagraphStyleConfiguration
+        {
+            Direction = ParagraphStyleConfiguration.TextDirection.Ltr
+        };
+
+        using var paragraphBuilder = SkParagraphBuilder.Create(paragraphStyleConfiguration, SkUnicode.Global, fontCollection);
+
+        var textStyleConfiguration = new TextStyleConfiguration
+        {
+            FontSize = 32,
+            FontWeight = TextStyleConfiguration.FontWeights.Normal,
+            FontFamilies = GetFontFamilyPointers("Noto Sans"),
+            FontFeatures = GetFontFeatures(),
+            ForegroundColor = 0xFF000000
+        };
+
+        using var labelStyle = new SkTextStyle(textStyleConfiguration with { FontSize = 24, ForegroundColor = 0xFF9E9E9E });
+        using var defaultWrapStyle = new SkTextStyle(textStyleConfiguration);
+        using var breakAnywhereStyle = new SkTextStyle(textStyleConfiguration with { BreakAnywhere = true });
+
+        // the word fits on a line of its own: by default it moves to the next line as a whole,
+        // while with the flag it starts on the current line and breaks in the middle
+        const string text = "Reference ABCDEFGHIJKLMNOP";
+
+        paragraphBuilder.AddText("without break anywhere:\n", labelStyle);
+        paragraphBuilder.AddText(text + "\n\n", defaultWrapStyle);
+
+        paragraphBuilder.AddText("with break anywhere:\n", labelStyle);
+        paragraphBuilder.AddText(text, breakAnywhereStyle);
+
+        using var paragraph = paragraphBuilder.CreateParagraph();
+        paragraph.PlanLayout(400);
+
+        // draw paragraph
+        using var bitmap = new SkBitmap(500, 325);
+        using var canvas = SkCanvas.CreateFromBitmap(bitmap);
+
+        canvas.DrawFilledRectangle(new SkRect(0, 0, 500, 325), 0xFFFFFFFF);
+        canvas.Translate(25, 25);
+        canvas.DrawParagraph(paragraph);
+
+        using var jpgData = bitmap.EncodeAsJpeg(95);
+        TestFixture.SaveOutput("paragraph_break_anywhere.jpg", jpgData);
+        jpgData.ShouldHaveSize(25_800, buffer: 300);
+
+        Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
+    }
+
     static SkTypefaceProvider CreateTypefaceProvider()
     {
         var typefaceProvider = new SkTypefaceProvider();
