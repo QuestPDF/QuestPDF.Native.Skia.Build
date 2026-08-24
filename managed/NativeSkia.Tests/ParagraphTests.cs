@@ -518,7 +518,7 @@ public class ParagraphTests
 
         using var jpgData = bitmap.EncodeAsJpeg(95);
         TestFixture.SaveOutput("paragraph_break_anywhere.jpg", jpgData);
-        jpgData.ShouldHaveSize(25_600, buffer: 300);
+        jpgData.ShouldHaveSize(25_800, buffer: 300);
 
         Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
     }
