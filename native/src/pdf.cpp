@@ -79,7 +79,7 @@ SkPDF::Metadata map_pdf_metadata(PdfDocumentMetadata metadata) {
 
     result.fPDFAConformance = metadata.PDFAConformance;
     result.fPDFUAConformance = metadata.PDFUAConformance;
-    result.fCompressionLevel = metadata.compressDocument ? SkPDF::Metadata::CompressionLevel::LowButFast : SkPDF::Metadata::CompressionLevel::None;
+    result.fCompressionLevel = metadata.compressDocument ? SkPDF::Metadata::CompressionLevel::Optimal : SkPDF::Metadata::CompressionLevel::None;
     result.fRasterDPI = metadata.rasterDPI;
     result.fEncodingQuality = 101;
 
