@@ -516,9 +516,9 @@ public class ParagraphTests
         canvas.Translate(25, 25);
         canvas.DrawParagraph(paragraph);
 
-        using var pngData = bitmap.EncodeAsPng();
-        TestFixture.SaveOutput("paragraph_break_anywhere.png", pngData);
-        pngData.ShouldHaveSize(29_200, buffer: 300);
+        using var jpgData = bitmap.EncodeAsJpeg(95);
+        TestFixture.SaveOutput("paragraph_break_anywhere.jpg", jpgData);
+        jpgData.ShouldHaveSize(25_600, buffer: 300);
 
         Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
     }
