@@ -57,6 +57,12 @@ QUEST_API void questpdf_skia_paragraph_delete_unresolved_codepoints(SkUnichar *a
 QUEST_API void questpdf_skia_paragraph_get_placeholder_positions(skia::textlayout::Paragraph *paragraph, SkRect **outputArray, int *outputArrayLength) {
     const auto placeholders = paragraph->getRectsForPlaceholders();
 
+    if (placeholders.size() == 0) {
+        *outputArray = nullptr;
+        *outputArrayLength = 0;
+        return;
+    }
+
     *outputArrayLength = placeholders.size();
     *outputArray = new SkRect[*outputArrayLength];
 
