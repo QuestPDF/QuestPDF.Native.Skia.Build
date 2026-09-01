@@ -54,10 +54,7 @@ static void copyString(char *destination, size_t destinationSize, const SkString
     destination[length] = '\0';
 }
 
-static SkFontInfo mapTypefaceToFontInfo(SkTypeface *typeface) {
-    SkString familyName;
-    typeface->getFamilyName(&familyName);
-
+static SkFontInfo mapTypefaceToFontInfo(const SkString &familyName, SkTypeface *typeface) {
     SkString postScriptName;
     typeface->getPostScriptName(&postScriptName);
 
@@ -97,7 +94,7 @@ static std::vector<SkFontInfo> findTypefaces(SkFontMgr *fontManager, Predicate i
             if (typeface == nullptr || !includeTypeface(typeface.get()))
                 continue;
 
-            descriptions.push_back(mapTypefaceToFontInfo(typeface.get()));
+            descriptions.push_back(mapTypefaceToFontInfo(familyName, typeface.get()));
         }
     }
 
