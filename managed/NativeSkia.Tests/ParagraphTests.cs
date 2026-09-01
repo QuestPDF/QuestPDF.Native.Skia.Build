@@ -12,7 +12,7 @@ public class ParagraphTests
         using var typefaceProvider = CreateTypefaceProvider();
         
         // build simple paragraph;
-        var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);   
+        var fontCollection = SkFontCollection.Create(typefaceProvider);   
  
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration
         {
@@ -98,8 +98,8 @@ public class ParagraphTests
     [Test]
     public void GetLineHeights()
     {
-        using var typefaceProvider = new SkTypefaceProvider();
-        using var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);
+        using var typefaceProvider = CreateTypefaceProvider();
+        using var fontCollection = SkFontCollection.Create(typefaceProvider);
 
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration
         {
@@ -162,7 +162,7 @@ public class ParagraphTests
         using var typefaceProvider = CreateTypefaceProvider();
         
         // build simple paragraph;
-        var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);   
+        var fontCollection = SkFontCollection.Create(typefaceProvider);   
  
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration
         {
@@ -234,9 +234,10 @@ public class ParagraphTests
     [Test]
     public void GetUnresolvedCodepoints()
     {
-        using var typefaceProvider = CreateTypefaceProvider();
+        using var typefaceProvider = new SkTypefaceProvider();
+        RegisterFont(typefaceProvider, "Lato-Regular.ttf");
 
-        using var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);
+        using var fontCollection = SkFontCollection.Create(typefaceProvider);
 
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration();
         using var paragraphBuilder = SkParagraphBuilder.Create(paragraphStyleConfiguration, SkUnicode.Global, fontCollection);
@@ -266,7 +267,7 @@ public class ParagraphTests
     {
         // build simple paragraph
         using var typefaceProvider = CreateTypefaceProvider();
-        var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);   
+        var fontCollection = SkFontCollection.Create(typefaceProvider);   
  
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration
         {
@@ -338,7 +339,7 @@ public class ParagraphTests
     public void DrawParagraphWithHyperlink()
     {
         using var typefaceProvider = CreateTypefaceProvider();
-        using var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);
+        using var fontCollection = SkFontCollection.Create(typefaceProvider);
         
         using var memoryStream = new MemoryStream();
         using var skiaStream = new SkWriteStream(memoryStream);
@@ -418,7 +419,7 @@ public class ParagraphTests
     public void Hyphenation()
     {
         using var typefaceProvider = CreateTypefaceProvider();
-        using var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);
+        using var fontCollection = SkFontCollection.Create(typefaceProvider);
 
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration
         {
@@ -473,7 +474,7 @@ public class ParagraphTests
     public void BreakAnywhere()
     {
         using var typefaceProvider = CreateTypefaceProvider();
-        using var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);
+        using var fontCollection = SkFontCollection.Create(typefaceProvider);
 
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration
         {
@@ -521,6 +522,65 @@ public class ParagraphTests
         jpgData.ShouldHaveSize(25_800, buffer: 300);
 
         Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
+    }
+
+    [Test]
+    public static void GlobalFontManagerShouldHaveRegisteredFonts()
+    {
+        var typefaces = SkFontManager.Global.GetTypefaces();
+        Assert.That(typefaces, Is.Not.Empty);
+    }
+    
+    [Test]
+    public static void FreshTypefaceProviderShouldNotHaveRegisteredFonts()
+    {
+        using var typefaceProvider = new SkTypefaceProvider();
+        var typefaces = typefaceProvider.GetTypefaces();
+        Assert.That(typefaces, Is.Empty);
+    }
+    
+    [Test]
+    public static void ConfiguredTypefaceProviderShouldHaveRegisteredFonts()
+    {
+        using var typefaceProvider = CreateTypefaceProvider();
+        var typefaces = typefaceProvider.GetTypefaces();
+        Assert.That(typefaces, Has.Length.EqualTo(10));
+        Assert.That(typefaces.Any(x => x.FamilyName == "Lato"));
+    }
+
+    [Test]
+    public static void TypefaceRegisteredWithAliasShouldBeAvailableUnderAliasAndDeclaredNames()
+    {
+        using var typefaceProvider = new SkTypefaceProvider();
+        RegisterFont(typefaceProvider, "Lato-Light.ttf", alias: "QuestPDF Alias Test");
+
+        var typefaces = typefaceProvider.GetTypefaces();
+
+        Assert.That(typefaces, Has.Length.EqualTo(3));
+        Assert.That(typefaces, Does.Contain(new FontInfo("QuestPDF Alias Test", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
+        Assert.That(typefaces, Does.Contain(new FontInfo("Lato", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
+        Assert.That(typefaces, Does.Contain(new FontInfo("Lato Light", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
+    }
+
+    [Test]
+    public static void TypefaceRegisteredWithAliasEqualToDeclaredNameShouldNotBeDuplicated()
+    {
+        using var typefaceProvider = new SkTypefaceProvider();
+
+        // family names are matched case-insensitively, so this alias duplicates the declared "Lato" name
+        RegisterFont(typefaceProvider, "Lato-Light.ttf", alias: "LATO");
+
+        var typefaces = typefaceProvider.GetTypefaces();
+
+        Assert.That(typefaces, Has.Length.EqualTo(2));
+        Assert.That(typefaces.Count(x => x.FamilyName.Equals("Lato", StringComparison.OrdinalIgnoreCase)), Is.EqualTo(1));
+        Assert.That(typefaces, Does.Contain(new FontInfo("Lato Light", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
+    }
+
+    static void RegisterFont(SkTypefaceProvider typefaceProvider, string fileName, string? alias = null)
+    {
+        using var typefaceData = SkData.FromFile(Path.Combine(TestFixture.InputPath, fileName));
+        typefaceProvider.AddTypefaceFromData(typefaceData, alias);
     }
 
     static SkTypefaceProvider CreateTypefaceProvider()
