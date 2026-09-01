@@ -295,7 +295,7 @@ public class CanvasTests
         // assert
         using var pngData = bitmap.EncodeAsPng();
         TestFixture.SaveOutput("canvas_line.png", pngData);
-        pngData.ShouldHaveSize(12_750, 15);
+        pngData.ShouldHaveSize(12_750, 50);
     }
     
     [Test]

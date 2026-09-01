@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using QuestPDF.Skia;
 using QuestPDF.Skia.Text;
+using static NativeSkia.Tests.TestHelpers;
 
 namespace NativeSkia.Tests;
 
@@ -236,6 +237,7 @@ public class ParagraphTests
     {
         using var typefaceProvider = new SkTypefaceProvider();
         RegisterFont(typefaceProvider, "Lato-Regular.ttf");
+        RegisterFont(typefaceProvider, "NotoEmoji-Regular.ttf");
 
         using var fontCollection = SkFontCollection.Create(typefaceProvider);
 
@@ -260,6 +262,13 @@ public class ParagraphTests
 
         var unresolvedCodepoints = paragraph.GetUnresolvedCodepoints();
         Assert.That(unresolvedCodepoints, Is.EquivalentTo(new[] { 128293, 28779 }));
+
+        var fireEmojiMissing = typefaceProvider.GetTypefacesWithGlyph(128293);
+        Assert.That(fireEmojiMissing, Has.Length.EqualTo(1));
+        Assert.That(fireEmojiMissing.First().FamilyName, Is.EqualTo("Noto Emoji"));
+        
+        var fireJapaneseMissing = typefaceProvider.GetTypefacesWithGlyph(28779);
+        Assert.That(fireJapaneseMissing, Is.Empty);
     }
     
     [Test]
@@ -522,81 +531,6 @@ public class ParagraphTests
         jpgData.ShouldHaveSize(25_800, buffer: 300);
 
         Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
-    }
-
-    [Test]
-    public static void GlobalFontManagerShouldHaveRegisteredFonts()
-    {
-        var typefaces = SkFontManager.Global.GetTypefaces();
-        Assert.That(typefaces, Is.Not.Empty);
-    }
-    
-    [Test]
-    public static void FreshTypefaceProviderShouldNotHaveRegisteredFonts()
-    {
-        using var typefaceProvider = new SkTypefaceProvider();
-        var typefaces = typefaceProvider.GetTypefaces();
-        Assert.That(typefaces, Is.Empty);
-    }
-    
-    [Test]
-    public static void ConfiguredTypefaceProviderShouldHaveRegisteredFonts()
-    {
-        using var typefaceProvider = CreateTypefaceProvider();
-        var typefaces = typefaceProvider.GetTypefaces();
-        Assert.That(typefaces, Has.Length.EqualTo(10));
-        Assert.That(typefaces.Any(x => x.FamilyName == "Lato"));
-    }
-
-    [Test]
-    public static void TypefaceRegisteredWithAliasShouldBeAvailableUnderAliasAndDeclaredNames()
-    {
-        using var typefaceProvider = new SkTypefaceProvider();
-        RegisterFont(typefaceProvider, "Lato-Light.ttf", alias: "QuestPDF Alias Test");
-
-        var typefaces = typefaceProvider.GetTypefaces();
-
-        Assert.That(typefaces, Has.Length.EqualTo(3));
-        Assert.That(typefaces, Does.Contain(new FontInfo("QuestPDF Alias Test", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
-        Assert.That(typefaces, Does.Contain(new FontInfo("Lato", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
-        Assert.That(typefaces, Does.Contain(new FontInfo("Lato Light", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
-    }
-
-    [Test]
-    public static void TypefaceRegisteredWithAliasEqualToDeclaredNameShouldNotBeDuplicated()
-    {
-        using var typefaceProvider = new SkTypefaceProvider();
-
-        // family names are matched case-insensitively, so this alias duplicates the declared "Lato" name
-        RegisterFont(typefaceProvider, "Lato-Light.ttf", alias: "LATO");
-
-        var typefaces = typefaceProvider.GetTypefaces();
-
-        Assert.That(typefaces, Has.Length.EqualTo(2));
-        Assert.That(typefaces.Count(x => x.FamilyName.Equals("Lato", StringComparison.OrdinalIgnoreCase)), Is.EqualTo(1));
-        Assert.That(typefaces, Does.Contain(new FontInfo("Lato Light", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
-    }
-
-    static void RegisterFont(SkTypefaceProvider typefaceProvider, string fileName, string? alias = null)
-    {
-        using var typefaceData = SkData.FromFile(Path.Combine(TestFixture.InputPath, fileName));
-        typefaceProvider.AddTypefaceFromData(typefaceData, alias);
-    }
-
-    static SkTypefaceProvider CreateTypefaceProvider()
-    {
-        var typefaceProvider = new SkTypefaceProvider();
-
-        var executionPath = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
-        var fontFilePaths = Directory.GetFiles(executionPath, "*.ttf", SearchOption.AllDirectories);
-
-        foreach (var fileName in fontFilePaths)
-        {
-            using var typefaceData = SkData.FromFile(fileName);
-            typefaceProvider.AddTypefaceFromData(typefaceData);
-        }
-
-        return typefaceProvider;
     }
     
     IntPtr[] GetFontFamilyPointers(params string[] texts)

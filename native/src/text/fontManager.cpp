@@ -40,7 +40,7 @@ sk_sp<SkFontMgr> font_manager_create_default_internal() {
 
 #endif
 
-struct SkTypefaceDescription {
+struct SkFontInfo {
     char familyName[256]; // UTF-8, NUL-terminated
     char postScriptName[256]; // UTF-8, NUL-terminated
     int weight;
@@ -54,14 +54,29 @@ static void copyString(char *destination, size_t destinationSize, const SkString
     destination[length] = '\0';
 }
 
-extern "C" {
+static SkFontInfo mapTypefaceToFontInfo(SkTypeface *typeface) {
+    SkString familyName;
+    typeface->getFamilyName(&familyName);
 
-QUEST_API SkFontMgr *questpdf_skia_font_manager_create_global() {
-    return font_manager_create_default_internal().release();
+    SkString postScriptName;
+    typeface->getPostScriptName(&postScriptName);
+
+    const SkFontStyle fontStyle = typeface->fontStyle();
+
+    SkFontInfo description{};
+    copyString(description.familyName, sizeof(description.familyName), familyName);
+    copyString(description.postScriptName, sizeof(description.postScriptName), postScriptName);
+    description.weight = fontStyle.weight();
+    description.isItalic = fontStyle.slant() != SkFontStyle::kUpright_Slant;
+    description.isVariable = typeface->getVariationDesignParameters({}) > 0;
+
+    return description;
 }
 
-QUEST_API void questpdf_skia_font_manager_get_typefaces(SkFontMgr *fontManager, SkTypefaceDescription **array, int *arrayLength) {
-    std::vector<SkTypefaceDescription> descriptions;
+// Enumerates every face of every family and keeps those accepted by the predicate.
+template <typename Predicate>
+static std::vector<SkFontInfo> findTypefaces(SkFontMgr *fontManager, Predicate includeTypeface) {
+    std::vector<SkFontInfo> descriptions;
 
     const int familyCount = fontManager->countFamilies();
 
@@ -79,33 +94,40 @@ QUEST_API void questpdf_skia_font_manager_get_typefaces(SkFontMgr *fontManager, 
         for (int styleIndex = 0; styleIndex < styleCount; styleIndex++) {
             sk_sp<SkTypeface> typeface = styleSet->createTypeface(styleIndex);
 
-            if (typeface == nullptr)
+            if (typeface == nullptr || !includeTypeface(typeface.get()))
                 continue;
 
-            SkString postScriptName;
-            typeface->getPostScriptName(&postScriptName);
-
-            const SkFontStyle fontStyle = typeface->fontStyle();
-
-            SkTypefaceDescription description{};
-            copyString(description.familyName, sizeof(description.familyName), familyName);
-            copyString(description.postScriptName, sizeof(description.postScriptName), postScriptName);
-            description.weight = fontStyle.weight();
-            description.isItalic = fontStyle.slant() != SkFontStyle::kUpright_Slant;
-
-            // an empty span only queries the number of variation axes
-            description.isVariable = typeface->getVariationDesignParameters({}) > 0;
-
-            descriptions.push_back(description);
+            descriptions.push_back(mapTypefaceToFontInfo(typeface.get()));
         }
     }
 
+    return descriptions;
+}
+
+static void copyToOutputArray(const std::vector<SkFontInfo> &descriptions, SkFontInfo **array, int *arrayLength) {
     *arrayLength = descriptions.size();
-    *array = new SkTypefaceDescription[*arrayLength];
+    *array = new SkFontInfo[*arrayLength];
     std::copy(descriptions.begin(), descriptions.end(), *array);
 }
 
-QUEST_API void questpdf_skia_font_manager_delete_typefaces(SkTypefaceDescription *array) {
+extern "C" {
+
+QUEST_API SkFontMgr *questpdf_skia_font_manager_create_global() {
+    return font_manager_create_default_internal().release();
+}
+
+QUEST_API void questpdf_skia_font_manager_get_typefaces(SkFontMgr *fontManager, SkFontInfo **array, int *arrayLength) {
+    const auto descriptions = findTypefaces(fontManager, [](SkTypeface *) { return true; });
+    copyToOutputArray(descriptions, array, arrayLength);
+}
+
+// Returns every face (of every family) that has a glyph for the codepoint; the caller can filter by weight / slant.
+QUEST_API void questpdf_skia_font_manager_get_typefaces_with_glyph(SkFontMgr *fontManager, int codepoint, SkFontInfo **array, int *arrayLength) {
+    const auto descriptions = findTypefaces(fontManager, [codepoint](SkTypeface *typeface) { return typeface->unicharToGlyph(codepoint) != 0; });
+    copyToOutputArray(descriptions, array, arrayLength);
+}
+
+QUEST_API void questpdf_skia_font_manager_delete_typefaces(SkFontInfo *array) {
     delete[] array;
 }
 

@@ -17,19 +17,31 @@ internal sealed class SkFontManager
     }
     
     public FontInfo[] GetTypefaces() => GetTypefaces(Instance);
+
+    public FontInfo[] GetTypefacesWithGlyph(int codepoint) => GetTypefacesWithGlyph(Instance, codepoint);
     
     internal static FontInfo[] GetTypefaces(IntPtr fontManagerInstance)
     {
         API.questpdf_skia_font_manager_get_typefaces(fontManagerInstance, out var array, out var arrayLength);
+        return MapFontInfos(array, arrayLength);
+    }
 
+    internal static FontInfo[] GetTypefacesWithGlyph(IntPtr fontManagerInstance, int codepoint)
+    {
+        API.questpdf_skia_font_manager_get_typefaces_with_glyph(fontManagerInstance, codepoint, out var array, out var arrayLength);
+        return MapFontInfos(array, arrayLength);
+    }
+
+    private static FontInfo[] MapFontInfos(IntPtr array, int arrayLength)
+    {
         try
         {
             var result = new FontInfo[arrayLength];
-            var size = Marshal.SizeOf<API.SkTypefaceDescription>();
+            var size = Marshal.SizeOf<API.SkFontInfo>();
 
             for (var i = 0; i < arrayLength; i++)
             {
-                var description = Marshal.PtrToStructure<API.SkTypefaceDescription>(IntPtr.Add(array, i * size));
+                var description = Marshal.PtrToStructure<API.SkFontInfo>(IntPtr.Add(array, i * size));
 
                 result[i] = new FontInfo(
                     FamilyName: DecodeString(description.FamilyName),
@@ -61,7 +73,7 @@ internal sealed class SkFontManager
     private static class API
     {
         [StructLayout(LayoutKind.Sequential)]
-        public struct SkTypefaceDescription
+        public struct SkFontInfo
         {
             public const int StringBufferLength = 256;
 
@@ -77,6 +89,9 @@ internal sealed class SkFontManager
         
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void questpdf_skia_font_manager_get_typefaces(IntPtr fontManager, out IntPtr array, out int arrayLength);
+
+        [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        public static extern void questpdf_skia_font_manager_get_typefaces_with_glyph(IntPtr fontManager, int codepoint, out IntPtr array, out int arrayLength);
 
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void questpdf_skia_font_manager_delete_typefaces(IntPtr array);
