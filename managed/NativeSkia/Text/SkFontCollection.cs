@@ -12,9 +12,9 @@ internal sealed class SkFontCollection : IDisposable
         SkiaAPI.EnsureNotNull(Instance);
     }
 
-    public static SkFontCollection Create(SkTypefaceProvider typefaceProvider, SkFontManager fontManager)
+    public static SkFontCollection Create(SkTypefaceProvider typefaceProvider, SkFontManager? fontManager = null)
     {
-        var instance = API.questpdf_skia_font_collection_create(fontManager.Instance, typefaceProvider.Instance);
+        var instance = API.questpdf_skia_font_collection_create(fontManager?.Instance ?? IntPtr.Zero, typefaceProvider.Instance);
         return new SkFontCollection(instance);
     }
     

@@ -9,13 +9,15 @@
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/skresources/include/SkResources.h"
 
+#include "include/ports/SkFontMgr_empty.h"
+
 extern "C" {
 
-QUEST_API skresources::ResourceProvider *questpdf_skia_resource_provider_create(char* resourcesPath, SkFontMgr *fontManager) {
+QUEST_API skresources::ResourceProvider *questpdf_skia_resource_provider_create(char* resourcesPath) {
     auto decodeStrategy = skresources::ImageDecodeStrategy::kPreDecode;
 
     auto fileProvider = skresources::FileResourceProvider::Make(SkString(resourcesPath), decodeStrategy);
-    auto dataUriProvider = skresources::DataURIResourceProviderProxy::Make(std::move(fileProvider), decodeStrategy, sk_ref_sp(fontManager));
+    auto dataUriProvider = skresources::DataURIResourceProviderProxy::Make(std::move(fileProvider), decodeStrategy, SkFontMgr_New_Custom_Empty());
 
     return dataUriProvider.release();
 }

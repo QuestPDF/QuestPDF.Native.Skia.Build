@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using QuestPDF.Skia;
 using QuestPDF.Skia.Text;
+using static NativeSkia.Tests.TestHelpers;
 
 namespace NativeSkia.Tests;
 
@@ -12,7 +13,7 @@ public class ParagraphTests
         using var typefaceProvider = CreateTypefaceProvider();
         
         // build simple paragraph;
-        var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);   
+        var fontCollection = SkFontCollection.Create(typefaceProvider);   
  
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration
         {
@@ -90,7 +91,7 @@ public class ParagraphTests
 
         var documentData = memoryStream.ToArray();
         TestFixture.SaveOutput("document_paragraph.pdf", documentData);
-        documentData.ShouldHaveSize(120_800, buffer: 225);
+        documentData.ShouldHaveSize(128_432);
 
         Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
     }
@@ -98,8 +99,8 @@ public class ParagraphTests
     [Test]
     public void GetLineHeights()
     {
-        using var typefaceProvider = new SkTypefaceProvider();
-        using var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);
+        using var typefaceProvider = CreateTypefaceProvider();
+        using var fontCollection = SkFontCollection.Create(typefaceProvider);
 
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration
         {
@@ -162,7 +163,7 @@ public class ParagraphTests
         using var typefaceProvider = CreateTypefaceProvider();
         
         // build simple paragraph;
-        var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);   
+        var fontCollection = SkFontCollection.Create(typefaceProvider);   
  
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration
         {
@@ -226,7 +227,7 @@ public class ParagraphTests
 
         var documentData = memoryStream.ToArray();
         TestFixture.SaveOutput("font_features.pdf", documentData);
-        documentData.ShouldHaveSize(21950, 210);
+        documentData.ShouldHaveSize(34_158);
 
         Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
     }
@@ -234,9 +235,11 @@ public class ParagraphTests
     [Test]
     public void GetUnresolvedCodepoints()
     {
-        using var typefaceProvider = CreateTypefaceProvider();
+        using var typefaceProvider = new SkTypefaceProvider();
+        RegisterFont(typefaceProvider, "Lato-Regular.ttf");
+        RegisterFont(typefaceProvider, "NotoEmoji-Regular.ttf");
 
-        using var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);
+        using var fontCollection = SkFontCollection.Create(typefaceProvider);
 
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration();
         using var paragraphBuilder = SkParagraphBuilder.Create(paragraphStyleConfiguration, SkUnicode.Global, fontCollection);
@@ -259,6 +262,13 @@ public class ParagraphTests
 
         var unresolvedCodepoints = paragraph.GetUnresolvedCodepoints();
         Assert.That(unresolvedCodepoints, Is.EquivalentTo(new[] { 128293, 28779 }));
+
+        var fireEmojiMissing = typefaceProvider.GetTypefacesWithGlyph(128293);
+        Assert.That(fireEmojiMissing, Has.Length.EqualTo(1));
+        Assert.That(fireEmojiMissing.First().FamilyName, Is.EqualTo("Noto Emoji"));
+        
+        var fireJapaneseMissing = typefaceProvider.GetTypefacesWithGlyph(28779);
+        Assert.That(fireJapaneseMissing, Is.Empty);
     }
     
     [Test]
@@ -266,7 +276,7 @@ public class ParagraphTests
     {
         // build simple paragraph
         using var typefaceProvider = CreateTypefaceProvider();
-        var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);   
+        var fontCollection = SkFontCollection.Create(typefaceProvider);   
  
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration
         {
@@ -338,7 +348,7 @@ public class ParagraphTests
     public void DrawParagraphWithHyperlink()
     {
         using var typefaceProvider = CreateTypefaceProvider();
-        using var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);
+        using var fontCollection = SkFontCollection.Create(typefaceProvider);
         
         using var memoryStream = new MemoryStream();
         using var skiaStream = new SkWriteStream(memoryStream);
@@ -418,7 +428,7 @@ public class ParagraphTests
     public void Hyphenation()
     {
         using var typefaceProvider = CreateTypefaceProvider();
-        using var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);
+        using var fontCollection = SkFontCollection.Create(typefaceProvider);
 
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration
         {
@@ -473,7 +483,7 @@ public class ParagraphTests
     public void BreakAnywhere()
     {
         using var typefaceProvider = CreateTypefaceProvider();
-        using var fontCollection = SkFontCollection.Create(typefaceProvider, SkFontManager.Local);
+        using var fontCollection = SkFontCollection.Create(typefaceProvider);
 
         var paragraphStyleConfiguration = new ParagraphStyleConfiguration
         {
@@ -521,22 +531,6 @@ public class ParagraphTests
         jpgData.ShouldHaveSize(25_800, buffer: 300);
 
         Assert.That(paragraph.GetUnresolvedCodepoints(), Is.Empty);
-    }
-
-    static SkTypefaceProvider CreateTypefaceProvider()
-    {
-        var typefaceProvider = new SkTypefaceProvider();
-
-        var executionPath = AppDomain.CurrentDomain.RelativeSearchPath ?? AppDomain.CurrentDomain.BaseDirectory;
-        var fontFilePaths = Directory.GetFiles(executionPath, "*.ttf", SearchOption.AllDirectories);
-
-        foreach (var fileName in fontFilePaths)
-        {
-            using var typefaceData = SkData.FromFile(fileName);
-            typefaceProvider.AddTypefaceFromData(typefaceData);
-        }
-
-        return typefaceProvider;
     }
     
     IntPtr[] GetFontFamilyPointers(params string[] texts)

@@ -33,11 +33,23 @@ internal sealed class SkSvgImage : IDisposable
     public SkSvgImageSize Size;
     public SkRect ViewBox;
     
+    /// <summary>Creates an SVG image whose text resolves against the fonts installed in the environment.</summary>
     public SkSvgImage(string svgString, SkResourceProvider resourceProvider, SkFontManager fontManager)
+        : this(svgString, resourceProvider, fontManager.Instance)
+    {
+    }
+    
+    /// <summary>Creates an SVG image whose text resolves against the fonts registered in the typeface provider.</summary>
+    public SkSvgImage(string svgString, SkResourceProvider resourceProvider, SkTypefaceProvider typefaceProvider)
+        : this(svgString, resourceProvider, typefaceProvider.FontManagerInstance)
+    {
+    }
+    
+    private SkSvgImage(string svgString, SkResourceProvider resourceProvider, IntPtr fontManager)
     {
         using var data = SkData.FromBinary(System.Text.Encoding.UTF8.GetBytes(svgString));
 
-        Instance = API.questpdf_skia_svg_create(data.Instance, resourceProvider.Instance, fontManager.Instance);
+        Instance = API.questpdf_skia_svg_create(data.Instance, resourceProvider.Instance, fontManager);
         
         if (Instance == IntPtr.Zero)
             throw new Exception("Cannot decode the provided SVG image.");
