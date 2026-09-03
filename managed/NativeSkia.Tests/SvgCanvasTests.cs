@@ -15,7 +15,8 @@ public class SvgCanvasTests
         
         // load SVG
         var svgContent = File.ReadAllText("Input/icon.svg");
-        using var svgImage = new SkSvgImage(svgContent, SkResourceProvider.Local, SkFontManager.Global);
+        using var typefaceProvider = new SkTypefaceProvider();
+        using var svgImage = new SkSvgImage(svgContent, SkResourceProvider.Local, typefaceProvider, SkFontManager.Global);
         
         // draw svg in a pdf document
         using var memoryStream = new MemoryStream();

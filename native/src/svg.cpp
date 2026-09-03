@@ -4,19 +4,33 @@
 #include "include/codec/SkCodec.h"
 #include "include/codec/SkPngDecoder.h"
 #include "include/codec/SkJpegDecoder.h"
+#include "include/utils/SkOrderedFontMgr.h"
+#include "modules/skparagraph/include/TypefaceFontProvider.h"
 #include "modules/svg/include/SkSVGDOM.h"
 #include "modules/svg/include/SkSVGSVG.h"
 #include "modules/svg/include/SkSVGRenderContext.h"
 #include "modules/skresources/include/SkResources.h"
 #include "modules/skshaper/utils/FactoryHelpers.h"
 
+static sk_sp<SkFontMgr> createSvgFontManager(skia::textlayout::TypefaceFontProvider *typefaceFontProvider, SkFontMgr *fontManager) {
+    auto orderedFontManager = sk_make_sp<SkOrderedFontMgr>();
+
+    if (typefaceFontProvider != nullptr)
+        orderedFontManager->append(sk_ref_sp(typefaceFontProvider));
+
+    if (fontManager != nullptr)
+        orderedFontManager->append(sk_ref_sp(fontManager));
+
+    return orderedFontManager;
+}
+
 extern "C" {
 
-QUEST_API SkSVGDOM *questpdf_skia_svg_create(SkData *data, skresources::ResourceProvider *resourceProvider, SkFontMgr *fontManager) {
+QUEST_API SkSVGDOM *questpdf_skia_svg_create(SkData *data, skresources::ResourceProvider *resourceProvider, SkFontMgr *fontManager, skia::textlayout::TypefaceFontProvider *typefaceFontProvider) {
     auto svgStream = SkMemoryStream(sk_ref_sp(data));
 
     return SkSVGDOM::Builder()
-        .setFontManager(sk_ref_sp(fontManager))
+        .setFontManager(createSvgFontManager(typefaceFontProvider, fontManager))
         .setTextShapingFactory(SkShapers::BestAvailable())
         .setResourceProvider(sk_ref_sp(resourceProvider))
         .make(svgStream)

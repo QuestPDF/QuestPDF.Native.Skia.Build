@@ -4,7 +4,7 @@
 extern "C" {
 
 QUEST_API int questpdf_skia_get_compatibility_version() {
-    return 23;
+    return 24;
 }
 
 QUEST_API int questpdf_get_compatibility_version() {

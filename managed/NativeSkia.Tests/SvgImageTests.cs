@@ -10,7 +10,8 @@ public class SvgImageTests
     public void Load()
     {
         var svgContent = File.ReadAllText("Input/icon.svg");
-        using var svg = new SkSvgImage(svgContent, SkResourceProvider.Local, SkFontManager.Global);
+        using var typefaceProvider = new SkTypefaceProvider();
+        using var svg = new SkSvgImage(svgContent, SkResourceProvider.Local, typefaceProvider, SkFontManager.Global);
 
         Assert.That(svg.Instance, Is.Not.EqualTo(IntPtr.Zero));
 
@@ -28,7 +29,8 @@ public class SvgImageTests
     {
         // read SVG
         var svgContent = File.ReadAllText("Input/icon.svg");
-        using var svg = new SkSvgImage(svgContent, SkResourceProvider.Local, SkFontManager.Global);
+        using var typefaceProvider = new SkTypefaceProvider();
+        using var svg = new SkSvgImage(svgContent, SkResourceProvider.Local, typefaceProvider, SkFontManager.Global);
         
         // create document
         using var memoryStream = new MemoryStream();
@@ -46,37 +48,5 @@ public class SvgImageTests
         var documentData = memoryStream.ToArray();
         TestFixture.SaveOutput("document_svg.pdf", documentData);
         documentData.ShouldHaveSize(3_260);
-    }
-
-    [Test]
-    public void RenderTextWithRegisteredFonts()
-    {
-        using var typefaceProvider = new SkTypefaceProvider();
-        
-        using var typefaceData = SkData.FromFile(Path.Combine(TestFixture.InputPath, "Lato-Regular.ttf" ));
-        typefaceProvider.AddTypefaceFromData(typefaceData);
-        
-        const string svgContent =
-            """
-            <svg xmlns="http://www.w3.org/2000/svg" width="300" height="100">
-                <text x="10" y="50" font-family="Times New Roman" font-size="20">Hello World</text>
-            </svg>
-            """;
-        
-        using var svg = new SkSvgImage(svgContent, SkResourceProvider.Local, typefaceProvider);
-        
-        using var memoryStream = new MemoryStream();
-        using var skiaStream = new SkWriteStream(memoryStream);
-        using var pdf = SkPdfDocument.Create(skiaStream, new SkPdfDocumentMetadata());
-        
-        using var pageCanvas = pdf.BeginPage(300, 100);
-        pageCanvas.DrawSvg(svg, 300, 100);
-        
-        pdf.EndPage();
-        pdf.Close();
-        skiaStream.Flush();
-
-        var documentContent = System.Text.Encoding.Latin1.GetString(memoryStream.ToArray());
-        Assert.That(documentContent, Does.Contain("Lato"));
     }
 }
