@@ -17,18 +17,10 @@ internal sealed class SkFontManager
     }
     
     public FontInfo[] GetTypefaces() => GetTypefaces(Instance);
-
-    public FontInfo[] GetTypefacesWithGlyph(int codepoint) => GetTypefacesWithGlyph(Instance, codepoint);
     
     internal static FontInfo[] GetTypefaces(IntPtr fontManagerInstance)
     {
         API.questpdf_skia_font_manager_get_typefaces(fontManagerInstance, out var array, out var arrayLength);
-        return MapFontInfos(array, arrayLength);
-    }
-
-    internal static FontInfo[] GetTypefacesWithGlyph(IntPtr fontManagerInstance, int codepoint)
-    {
-        API.questpdf_skia_font_manager_get_typefaces_with_glyph(fontManagerInstance, codepoint, out var array, out var arrayLength);
         return MapFontInfos(array, arrayLength);
     }
 
@@ -89,9 +81,6 @@ internal sealed class SkFontManager
         
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void questpdf_skia_font_manager_get_typefaces(IntPtr fontManager, out IntPtr array, out int arrayLength);
-
-        [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern void questpdf_skia_font_manager_get_typefaces_with_glyph(IntPtr fontManager, int codepoint, out IntPtr array, out int arrayLength);
 
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void questpdf_skia_font_manager_delete_typefaces(IntPtr array);

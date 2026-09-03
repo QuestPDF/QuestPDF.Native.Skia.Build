@@ -70,9 +70,7 @@ static SkFontInfo mapTypefaceToFontInfo(const SkString &familyName, SkTypeface *
     return description;
 }
 
-// Enumerates every face of every family and keeps those accepted by the predicate.
-template <typename Predicate>
-static std::vector<SkFontInfo> findTypefaces(SkFontMgr *fontManager, Predicate includeTypeface) {
+static std::vector<SkFontInfo> getTypefaces(SkFontMgr *fontManager) {
     std::vector<SkFontInfo> descriptions;
 
     const int familyCount = fontManager->countFamilies();
@@ -91,10 +89,8 @@ static std::vector<SkFontInfo> findTypefaces(SkFontMgr *fontManager, Predicate i
         for (int styleIndex = 0; styleIndex < styleCount; styleIndex++) {
             sk_sp<SkTypeface> typeface = styleSet->createTypeface(styleIndex);
 
-            if (typeface == nullptr || !includeTypeface(typeface.get()))
-                continue;
-
-            descriptions.push_back(mapTypefaceToFontInfo(familyName, typeface.get()));
+            if (typeface != nullptr)
+                descriptions.push_back(mapTypefaceToFontInfo(familyName, typeface.get()));
         }
     }
 
@@ -114,13 +110,7 @@ QUEST_API SkFontMgr *questpdf_skia_font_manager_create_global() {
 }
 
 QUEST_API void questpdf_skia_font_manager_get_typefaces(SkFontMgr *fontManager, SkFontInfo **array, int *arrayLength) {
-    const auto descriptions = findTypefaces(fontManager, [](SkTypeface *) { return true; });
-    copyToOutputArray(descriptions, array, arrayLength);
-}
-
-// Returns every face (of every family) that has a glyph for the codepoint; the caller can filter by weight / slant.
-QUEST_API void questpdf_skia_font_manager_get_typefaces_with_glyph(SkFontMgr *fontManager, int codepoint, SkFontInfo **array, int *arrayLength) {
-    const auto descriptions = findTypefaces(fontManager, [codepoint](SkTypeface *typeface) { return typeface->unicharToGlyph(codepoint) != 0; });
+    const auto descriptions = getTypefaces(fontManager);
     copyToOutputArray(descriptions, array, arrayLength);
 }
 

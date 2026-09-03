@@ -25,8 +25,6 @@ internal sealed class SkTypefaceProvider : IDisposable
     }
     
     public FontInfo[] GetTypefaces() => SkFontManager.GetTypefaces(FontManagerInstance);
-
-    public FontInfo[] GetTypefacesWithGlyph(int codepoint) => SkFontManager.GetTypefacesWithGlyph(FontManagerInstance, codepoint);
     
     ~SkTypefaceProvider()
     {

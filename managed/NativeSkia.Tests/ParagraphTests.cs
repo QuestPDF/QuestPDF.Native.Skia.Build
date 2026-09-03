@@ -262,13 +262,6 @@ public class ParagraphTests
 
         var unresolvedCodepoints = paragraph.GetUnresolvedCodepoints();
         Assert.That(unresolvedCodepoints, Is.EquivalentTo(new[] { 128293, 28779 }));
-
-        var fireEmojiMissing = typefaceProvider.GetTypefacesWithGlyph(128293);
-        Assert.That(fireEmojiMissing, Has.Length.EqualTo(1));
-        Assert.That(fireEmojiMissing.First().FamilyName, Is.EqualTo("Noto Emoji"));
-        
-        var fireJapaneseMissing = typefaceProvider.GetTypefacesWithGlyph(28779);
-        Assert.That(fireJapaneseMissing, Is.Empty);
     }
     
     [Test]
