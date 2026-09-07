@@ -5,7 +5,7 @@
 
 extern "C" {
 
-QUEST_API skia::textlayout::FontCollection *questpdf_skia_font_collection_create(SkFontMgr *fontManager, skia::textlayout::TypefaceFontProvider *typefaceFontProvider) {
+QUEST_API skia::textlayout::FontCollection *questpdf_skia_font_collection_create(skia::textlayout::TypefaceFontProvider *typefaceFontProvider, SkFontMgr *fontManager) {
     auto fontCollection = new skia::textlayout::FontCollection();
 
     fontCollection->setAssetFontManager(sk_ref_sp(typefaceFontProvider));

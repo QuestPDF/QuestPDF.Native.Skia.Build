@@ -26,7 +26,7 @@ static sk_sp<SkFontMgr> createSvgFontManager(skia::textlayout::TypefaceFontProvi
 
 extern "C" {
 
-QUEST_API SkSVGDOM *questpdf_skia_svg_create(SkData *data, skresources::ResourceProvider *resourceProvider, SkFontMgr *fontManager, skia::textlayout::TypefaceFontProvider *typefaceFontProvider) {
+QUEST_API SkSVGDOM *questpdf_skia_svg_create(SkData *data, skresources::ResourceProvider *resourceProvider, skia::textlayout::TypefaceFontProvider *typefaceFontProvider, SkFontMgr *fontManager) {
     auto svgStream = SkMemoryStream(sk_ref_sp(data));
 
     return SkSVGDOM::Builder()
