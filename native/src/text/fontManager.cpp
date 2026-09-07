@@ -105,7 +105,7 @@ static void copyToOutputArray(const std::vector<SkFontInfo> &descriptions, SkFon
 
 extern "C" {
 
-QUEST_API SkFontMgr *questpdf_skia_font_manager_create_global() {
+QUEST_API SkFontMgr *questpdf_skia_font_manager_create_system() {
     return font_manager_create_default_internal().release();
 }
 

@@ -8,7 +8,7 @@ internal sealed class SkFontManager
 {
     public IntPtr Instance { get; }
     
-    public static SkFontManager Global { get; } = new(API.questpdf_skia_font_manager_create_global());
+    public static SkFontManager Global { get; } = new(API.questpdf_skia_font_manager_create_system());
 
     private SkFontManager(IntPtr instance)
     {
@@ -77,7 +77,7 @@ internal sealed class SkFontManager
         }
         
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr questpdf_skia_font_manager_create_global();
+        public static extern IntPtr questpdf_skia_font_manager_create_system();
         
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern void questpdf_skia_font_manager_get_typefaces(IntPtr fontManager, out IntPtr array, out int arrayLength);
