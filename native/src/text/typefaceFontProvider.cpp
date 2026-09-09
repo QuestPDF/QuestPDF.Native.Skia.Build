@@ -1,7 +1,5 @@
 #include "../export.h"
 
-#include <set>
-#include <string>
 #include <vector>
 
 #include "include/core/SkData.h"
@@ -14,46 +12,22 @@
 #include "modules/skparagraph/include/ParagraphBuilder.h"
 #include "modules/skparagraph/include/TypefaceFontProvider.h"
 
-static std::string toLowerAscii(const SkString& value) {
-    std::string result(value.c_str(), value.size());
+static void registerTypeface(skia::textlayout::TypefaceFontProvider* typefaceFontProvider, const sk_sp<SkTypeface>& typeface, const char* alias) {
+    SkString familyName;
+    typeface->getFamilyName(&familyName);
 
-    for (auto& character : result) {
-        if (character >= 'A' && character <= 'Z')
-            character += 'a' - 'A';
-    }
+    if (!familyName.isEmpty())
+        typefaceFontProvider->registerTypeface(typeface, familyName);
 
-    return result;
-}
-
-static void registerTypefaceUnderAllFamilyNames(skia::textlayout::TypefaceFontProvider* typefaceFontProvider, SkTypeface* typeface, const char* alias) {
-    std::set<std::string> registeredFamilyNames;
-
-    auto registerFamilyName = [&](const SkString& familyName) {
-        if (familyName.isEmpty())
-            return;
-
-        if (!registeredFamilyNames.insert(toLowerAscii(familyName)).second)
-            return;
-
-        typefaceFontProvider->registerTypeface(sk_ref_sp(typeface), familyName);
-    };
-
-    if (alias != nullptr)
-        registerFamilyName(SkString(alias));
-
-    SkString backendFamilyName;
-    typeface->getFamilyName(&backendFamilyName);
-    registerFamilyName(backendFamilyName);
-
-    sk_sp<SkTypeface::LocalizedStrings> familyNames(typeface->createFamilyNameIterator());
-
-    if (familyNames == nullptr)
+    if (alias == nullptr)
         return;
 
-    SkTypeface::LocalizedString familyName;
+    const SkString aliasName(alias);
 
-    while (familyNames->next(&familyName))
-        registerFamilyName(familyName.fString);
+    if (aliasName.isEmpty())
+        return;
+
+    typefaceFontProvider->registerTypeface(typeface, aliasName);
 }
 
 static std::vector<sk_sp<SkTypeface>> createTypefacesFromData(SkData* data) {
@@ -88,7 +62,7 @@ QUEST_API int questpdf_skia_typeface_font_provider_add_typefaces_from_data(skia:
     int registeredTypefaces = 0;
 
     for (auto& typeface : createTypefacesFromData(data)) {
-        registerTypefaceUnderAllFamilyNames(typefaceFontProvider, typeface.get(), alias);
+        registerTypeface(typefaceFontProvider, typeface, alias);
         registeredTypefaces++;
     }
 

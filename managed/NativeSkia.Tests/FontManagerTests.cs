@@ -26,22 +26,33 @@ public static class FontManagerTests
     {
         using var typefaceProvider = CreateTypefaceProvider();
         var typefaces = typefaceProvider.GetTypefaces();
-        Assert.That(typefaces, Has.Length.EqualTo(10));
+        Assert.That(typefaces, Has.Length.EqualTo(9));
         Assert.That(typefaces.Any(x => x.FamilyName == "Lato"));
     }
 
     [Test]
-    public static void TypefaceRegisteredWithAliasShouldBeAvailableUnderAliasAndDeclaredNames()
+    public static void TypefaceShouldBeRegisteredUnderTypographicFamilyNameOnly()
+    {
+        using var typefaceProvider = new SkTypefaceProvider();
+        RegisterFont(typefaceProvider, "Lato-Light.ttf");
+
+        var typefaces = typefaceProvider.GetTypefaces();
+
+        // the legacy per-style family name ("Lato Light") is intentionally not registered
+        Assert.That(typefaces, Is.EqualTo(new[] { new FontInfo("Lato", "Lato-Light", 300, IsItalic: false, IsVariable: false) }));
+    }
+
+    [Test]
+    public static void TypefaceRegisteredWithAliasShouldBeAvailableUnderAliasAndTypographicFamilyName()
     {
         using var typefaceProvider = new SkTypefaceProvider();
         RegisterFont(typefaceProvider, "Lato-Light.ttf", alias: "QuestPDF Alias Test");
 
         var typefaces = typefaceProvider.GetTypefaces();
 
-        Assert.That(typefaces, Has.Length.EqualTo(3));
+        Assert.That(typefaces, Has.Length.EqualTo(2));
         Assert.That(typefaces, Does.Contain(new FontInfo("QuestPDF Alias Test", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
         Assert.That(typefaces, Does.Contain(new FontInfo("Lato", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
-        Assert.That(typefaces, Does.Contain(new FontInfo("Lato Light", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
     }
 
     [Test]
@@ -54,8 +65,7 @@ public static class FontManagerTests
 
         var typefaces = typefaceProvider.GetTypefaces();
 
-        Assert.That(typefaces, Has.Length.EqualTo(2));
+        Assert.That(typefaces, Has.Length.EqualTo(1));
         Assert.That(typefaces.Count(x => x.FamilyName.Equals("Lato", StringComparison.OrdinalIgnoreCase)), Is.EqualTo(1));
-        Assert.That(typefaces, Does.Contain(new FontInfo("Lato Light", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
     }
 }
