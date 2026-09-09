@@ -8,10 +8,6 @@
 
 extern "C" {
 
-QUEST_API SkData *questpdf_skia_data_create_from_file(const char *path) {
-    return SkData::MakeFromFileName(path).release();
-}
-
 QUEST_API SkData *questpdf_skia_data_create_from_binary(const uint8_t *data, int dataLength) {
     return SkData::MakeWithCopy(data, dataLength).release();
 }

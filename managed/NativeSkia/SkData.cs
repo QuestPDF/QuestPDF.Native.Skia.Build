@@ -14,8 +14,8 @@ internal sealed class SkData : IDisposable
     
     public static SkData FromFile(string filePath)
     {
-        var instance = API.questpdf_skia_data_create_from_file(filePath);
-        return new SkData(instance);
+        var binaryData = File.ReadAllBytes(filePath);
+        return SkData.FromBinary(binaryData);
     }
     
     public static SkData FromStream(Stream stream)
@@ -66,9 +66,6 @@ internal sealed class SkData : IDisposable
     
     private static class API
     {
-        [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
-        public static extern IntPtr questpdf_skia_data_create_from_file([MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringMarshaller))] string path);
-    
         [DllImport(SkiaAPI.LibraryName, CallingConvention = CallingConvention.Cdecl)]
         public static extern unsafe IntPtr questpdf_skia_data_create_from_binary(byte* arrayPointer, int arrayLength);
     
