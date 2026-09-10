@@ -78,7 +78,7 @@ jobs:
         shell: bash
         run: |
           # manylinux_2_28 natively bundles pre-compiled Python 3.11
-          # expose it so depot_tools grabs it instead of 3.6
+          # expose it so the Skia sync/build scripts use it instead of 3.6
           echo "/opt/python/cp311-cp311/bin" >> $GITHUB_PATH
           ln -sf /opt/python/cp311-cp311/bin/python3 /usr/bin/python3
 
@@ -91,15 +91,6 @@ jobs:
           architecture: ${{ runner.os == 'Windows' && 'x64' || '' }}
 
 
-      - name: Install Skia Build System
-        if: matrix.runtime.name != 'linux-musl-x64'
-        shell: bash
-        run: |
-          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --single-branch --depth 1
-          echo "${PWD}/depot_tools" >> $GITHUB_PATH
-          export PATH="${PWD}/depot_tools:${PATH}"
-
-          
       - name: Download Skia and Fetch Dependencies
         shell: bash
         run: |
@@ -112,6 +103,7 @@ jobs:
           bin/fetch-ninja
           python3 tools/git-sync-deps
 
+          # Expose the pinned ninja fetched above; gn is fetched by git-sync-deps into bin/
           if [ "${{ matrix.runtime.name }}" != "linux-musl-x64" ]; then
             echo "${PWD}/third_party/ninja" >> $GITHUB_PATH
           fi
