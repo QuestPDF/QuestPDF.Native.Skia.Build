@@ -112,6 +112,10 @@ jobs:
           bin/fetch-ninja
           python3 tools/git-sync-deps
 
+          if [ "${{ matrix.runtime.name }}" != "linux-musl-x64" ]; then
+            echo "${PWD}/third_party/ninja" >> $GITHUB_PATH
+          fi
+
 
       - name: Build Skia
         shell: bash
@@ -147,7 +151,6 @@ jobs:
             skia_use_libwebp_decode=true
             skia_enable_android_utils=false
             skia_enable_spirv_validation=false
-            skia_enable_gpu=false
             skia_enable_gpu_debug_layers=false
             skia_enable_fontmgr_custom_directory=true
             skia_use_freetype=true
