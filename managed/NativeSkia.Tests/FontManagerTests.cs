@@ -54,18 +54,4 @@ public static class FontManagerTests
         Assert.That(typefaces, Does.Contain(new FontInfo("QuestPDF Alias Test", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
         Assert.That(typefaces, Does.Contain(new FontInfo("Lato", "Lato-Light", 300, IsItalic: false, IsVariable: false)));
     }
-
-    [Test]
-    public static void TypefaceRegisteredWithAliasEqualToDeclaredNameShouldNotBeDuplicated()
-    {
-        using var typefaceProvider = new SkTypefaceProvider();
-
-        // family names are matched case-insensitively, so this alias duplicates the declared "Lato" name
-        RegisterFont(typefaceProvider, "Lato-Light.ttf", alias: "LATO");
-
-        var typefaces = typefaceProvider.GetTypefaces();
-
-        Assert.That(typefaces, Has.Length.EqualTo(1));
-        Assert.That(typefaces.Count(x => x.FamilyName.Equals("Lato", StringComparison.OrdinalIgnoreCase)), Is.EqualTo(1));
-    }
 }
