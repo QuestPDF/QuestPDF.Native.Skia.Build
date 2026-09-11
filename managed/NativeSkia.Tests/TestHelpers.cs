@@ -16,6 +16,17 @@ internal static class TestHelpers
         data.ToBytes().ShouldHaveSize(sizeInBytes, buffer);
     }
 
+    // SkText frees its native buffer when finalized, while configuration structs store only raw pointers;
+    // root every instance for the entire test run so the pointers stay valid until the native side reads them
+    private static readonly List<SkText> NativeTextInstances = new();
+
+    public static IntPtr CreateNativeText(string text)
+    {
+        var skText = new SkText(text);
+        NativeTextInstances.Add(skText);
+        return skText.Instance;
+    }
+
     public static void RegisterFont(SkTypefaceProvider typefaceProvider, string fileName, string? alias = null)
     {
         using var typefaceData = SkData.FromFile(Path.Combine(TestFixture.InputPath, fileName));

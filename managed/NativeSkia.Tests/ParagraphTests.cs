@@ -20,7 +20,7 @@ public class ParagraphTests
             Alignment = ParagraphStyleConfiguration.TextAlign.Justify,
             Direction = ParagraphStyleConfiguration.TextDirection.Ltr,
             MaxLinesVisible = 40,
-            LineClampEllipsis = new SkText("...").Instance
+            LineClampEllipsis = CreateNativeText("...")
         };
         
         using var paragraphBuilder = SkParagraphBuilder.Create(paragraphStyleConfiguration, SkUnicode.Global, fontCollection);
@@ -170,7 +170,7 @@ public class ParagraphTests
             Alignment = ParagraphStyleConfiguration.TextAlign.Justify,
             Direction = ParagraphStyleConfiguration.TextDirection.Ltr,
             MaxLinesVisible = 40,
-            LineClampEllipsis = new SkText("...").Instance
+            LineClampEllipsis = CreateNativeText("...")
         };
         
         using var paragraphBuilder = SkParagraphBuilder.Create(paragraphStyleConfiguration, SkUnicode.Global, fontCollection);
@@ -276,7 +276,7 @@ public class ParagraphTests
             Alignment = ParagraphStyleConfiguration.TextAlign.Left,
             Direction = ParagraphStyleConfiguration.TextDirection.Ltr,
             MaxLinesVisible = 40,
-            LineClampEllipsis = new SkText(" [...]").Instance
+            LineClampEllipsis = CreateNativeText(" [...]")
         };
         
         using var paragraphBuilder = SkParagraphBuilder.Create(paragraphStyleConfiguration, SkUnicode.Global, fontCollection);
@@ -531,7 +531,7 @@ public class ParagraphTests
         var result = new IntPtr[TextStyleConfiguration.FONT_FAMILIES_LENGTH];
                 
         for (var i = 0; i < Math.Min(result.Length, texts.Length); i++)
-            result[i] = new SkText(texts[i]).Instance;
+            result[i] = CreateNativeText(texts[i]);
                 
         return result;
     }

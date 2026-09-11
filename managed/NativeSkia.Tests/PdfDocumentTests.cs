@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using NUnit.Framework;
 using QuestPDF.Skia;
+using static NativeSkia.Tests.TestHelpers;
 
 namespace NativeSkia.Tests;
 
@@ -33,13 +34,13 @@ public class PdfDocumentTests
     {
         var metadata = new SkPdfDocumentMetadata
         {
-            Title = new SkText("Native Skia Generation Test"),
-            Author = new SkText("Marcin Ziąbek 🎉"),
-            Subject = new SkText("Polski: ąśćźżółń"),
-            Keywords = new SkText("keywords"),
-            Creator = new SkText("Japanese creator: 日本語"),
-            Producer = new SkText("Arabic producer: اللغة العربية"),
-            Language = new SkText("en-US"),
+            Title = CreateNativeText("Native Skia Generation Test"),
+            Author = CreateNativeText("Marcin Ziąbek 🎉"),
+            Subject = CreateNativeText("Polski: ąśćźżółń"),
+            Keywords = CreateNativeText("keywords"),
+            Creator = CreateNativeText("Japanese creator: 日本語"),
+            Producer = CreateNativeText("Arabic producer: اللغة العربية"),
+            Language = CreateNativeText("en-US"),
             
             CreationDate = new SkDateTime(new DateTimeOffset(2026, 5, 10, 12, 34, 56, TimeSpan.Zero)),
             ModificationDate = new SkDateTime(new DateTimeOffset(2026, 6, 13, 22, 20, 18, TimeSpan.Zero)),
@@ -82,8 +83,8 @@ public class PdfDocumentTests
         {
             var metadata = new SkPdfDocumentMetadata
             {
-                Title = new SkText("Native Skia Generation Test"),
-                Language = new SkText("en-US"),
+                Title = CreateNativeText("Native Skia Generation Test"),
+                Language = CreateNativeText("en-US"),
             
                 CreationDate = new SkDateTime(new DateTimeOffset(2026, 5, 10, 12, 34, 56, TimeSpan.Zero)),
                 ModificationDate = new SkDateTime(new DateTimeOffset(2026, 6, 13, 22, 20, 18, TimeSpan.Zero)),
