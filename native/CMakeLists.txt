@@ -15,8 +15,10 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 add_library(QuestPdfSkia SHARED ${SOURCES})
 
 
-# hide all internal symbols by default
+# set the output file name (CMake adds the "lib" prefix on Linux and macOS)
+# and hide all internal symbols by default
 set_target_properties(QuestPdfSkia PROPERTIES
+    OUTPUT_NAME "questpdf_skia"
     CXX_VISIBILITY_PRESET hidden
     C_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON

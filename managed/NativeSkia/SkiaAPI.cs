@@ -4,7 +4,7 @@ namespace QuestPDF.Skia;
 
 internal static class SkiaAPI
 {
-    public const string LibraryName = "QuestPdfSkia";
+    public const string LibraryName = "questpdf_skia";
     
     public static void EnsureNotNull(IntPtr instance)
     {
