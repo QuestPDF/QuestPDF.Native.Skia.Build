@@ -10,7 +10,9 @@ struct TextStyleFontFeature {
 };
 
 struct TextStyleConfiguration {
-    static const int FONT_FAMILIES_LENGTH = 16;
+    // must match the managed TextStyleConfiguration structure
+    static const int FONT_FAMILIES_LENGTH = 128;
+    static const int FONT_FEATURES_LENGTH = 32;
 
     SkScalar fontSize;
     SkFontStyle::Weight fontWeight;
@@ -18,7 +20,7 @@ struct TextStyleConfiguration {
     bool breakAnywhere;
 
     char* fontFamilies[FONT_FAMILIES_LENGTH];
-    TextStyleFontFeature fontFeatures[FONT_FAMILIES_LENGTH];
+    TextStyleFontFeature fontFeatures[FONT_FEATURES_LENGTH];
 
     SkColor foregroundColor;
     SkColor backgroundColor;
